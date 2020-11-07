@@ -1,0 +1,34 @@
+{
+  "name": "phaser-3-starter",
+  "version": "1.0.0",
+  "description": "A Phaser 3 starter for TypeScript",
+  "main": "src/game.ts",
+  "author": "Nathan ARAGO",
+  "license": "ISC",
+  "scripts": {
+    "build": "webpack",
+    "lint": "eslint src",
+    "dev": "webpack-dev-server",
+    "firebase-deploy": "firebase deploy"
+  },
+  "dependencies": {
+    "firebase": "^7.24.0",
+    "jquery": "^3.5.1",
+    "phaser": "^3.23.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.0.2",
+    "@typescript-eslint/parser": "^3.0.2",
+    "copy-webpack-plugin": "^6.0.2",
+    "eslint": "^7.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.5",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.7.2",
+    "typescript-tslint-plugin": "^0.5.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
