@@ -1,12 +1,11 @@
 import * as Phaser from 'phaser';
-import { Scenes } from './scenes/index.scene';
 
 
 const height = window.innerHeight * devicePixelRatio;
 const width = window.innerWidth * devicePixelRatio;
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
-    title: 'Alpaga Rush',
+    title: 'Game Title',
     type: Phaser.AUTO,
     scale: {
         mode: Phaser.Scale.FIT,
@@ -14,7 +13,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         width,
         height,
     },
-    scene: Scenes,
+    scene: /* Provide here the startup scene of the Game (e.g.: MainTitleScene)*/ null,
     physics: {
         default: 'arcade',
         arcade: {

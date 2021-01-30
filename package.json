@@ -1,19 +1,16 @@
 {
-  "name": "phaser-3-starter",
+  "name": "wowie-jam-30",
   "version": "1.0.0",
-  "description": "A Phaser 3 starter for TypeScript",
+  "description": "A game entry for the Wowie Jam 3.0",
   "main": "src/game.ts",
   "author": "Nathan ARAGO",
   "license": "ISC",
   "scripts": {
     "build": "webpack",
     "lint": "eslint src",
-    "dev": "webpack-dev-server",
-    "firebase-deploy": "firebase deploy"
+    "dev": "webpack-dev-server"
   },
   "dependencies": {
-    "firebase": "^7.24.0",
-    "jquery": "^3.5.1",
     "phaser": "^3.23.0"
   },
   "devDependencies": {
