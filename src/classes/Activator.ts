@@ -29,7 +29,7 @@ export default class Activator extends Phaser.GameObjects.Container {
     public create(): void {
         this._activator = this.scene.physics.add.sprite(this._xPos, this._yPos, 'activator');
 
-        this.physics.add.collider(stars, platforms);
+        //this.physics.add.collider(stars, platforms);
     }  
 
     public update(): void {
