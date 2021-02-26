@@ -44,7 +44,7 @@ export default class TestScene extends Scene {
             d.create();
             this.levers.filter(l => l.id === d.id)[0].event.on('activate', () => !d.opened ? d.open() : null)
             this.doors.push(d);
-        })
+        });
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
