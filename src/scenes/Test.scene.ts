@@ -5,12 +5,20 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 }
 
 import { Scene } from 'phaser';
+import Door from '../classes/Door';
+import Lever from '../classes/Lever';
 
 
 export default class TestScene extends Scene {
 
+    private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private doors: Door[] = [];
+    private levers: Lever[] = [];
+
     constructor() {
         super(config)
+
     }
 
     public preload(): void {
@@ -24,7 +32,19 @@ export default class TestScene extends Scene {
 
         map.createLayer('Ground', tiles, 0, 0);
         map.createLayer('Wall', tiles, 0, 0);
-        map.createLayer('Door', tiles, 0, 0);
+        this.doorTiles = map.getObjectLayer('Door').objects;
+        this.leverTiles = map.getObjectLayer('Lever').objects;
+        this.leverTiles.forEach(lever => {
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this);
+            l.create();
+            this.levers.push(l);
+        });
+        this.doorTiles.forEach(door => {
+            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, parseInt(door.name), this);
+            d.create();
+            this.levers.filter(l => l.id === d.id)[0].event.on('activate', () => !d.opened ? d.open() : null)
+            this.doors.push(d);
+        })
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
