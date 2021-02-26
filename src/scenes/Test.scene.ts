@@ -7,18 +7,17 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 import { Scene } from 'phaser';
 import Activator from '../classes/Lever';
 import Player from '../classes/Player';
+import Ghost from '../classes/Ghost'
+import UsableObject from '../classes/UsableObject'
 
 
 export default class TestScene extends Scene {
 
     private player;
     private _lever;
-
-
-    private _player2;
-
-
     private _walls;
+    private _ghost
+    private _gameObjects;
 
     constructor() {
         super(config)
@@ -38,6 +37,10 @@ export default class TestScene extends Scene {
 
         //Objects
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
+
+        //GameObject
+        this.load.image('ghost', '/assets/images/ghost.png');
+
     }
 
     public create(): void {
@@ -55,18 +58,14 @@ export default class TestScene extends Scene {
         this.player = new Player(100, 200, this);
         this.player.create();
 
-        this._player2 = this.physics.add.sprite(100, 400, 'player');
-
-        //console.log(this._player2);
-
-        console.log(this.player);
-
         this.physics.add.collider(this.player._body, this._walls);
 
 
         //Lever
         this._lever = new Activator(400, 400, this);
         this._lever.create();
+        this._gameObjects = this.physics.add.staticGroup(new UsableObject(300, 300, this))
+        this._ghost = new Ghost(400, 400, this, this._gameObjects);
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
@@ -76,5 +75,6 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
+        this._ghost.update()
     }
 }
