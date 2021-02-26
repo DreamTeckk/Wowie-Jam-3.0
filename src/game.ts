@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import TmpScene from './scenes/TmpScene';
 
 
 const height = window.innerHeight * devicePixelRatio;
@@ -13,7 +14,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         width,
         height,
     },
-    scene: /* Provide here the startup scene of the Game (e.g.: MainTitleScene)*/ null,
+    scene: TmpScene,
     physics: {
         default: 'arcade',
         arcade: {
