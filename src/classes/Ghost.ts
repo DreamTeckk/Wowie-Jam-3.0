@@ -14,6 +14,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
     private _asset : Phaser.Types.Physics.Arcade.ImageWithDynamicBody
     private _itemsInRange: Phaser.Physics.Arcade.Body[] | Phaser.Physics.Arcade.StaticBody[];
 
+    private _debug
 
     constructor(x: number, y: number, scene: Scene) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
@@ -22,6 +23,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
         this._isAlive = true;
         this._cursors = this.scene.input.keyboard.createCursorKeys();
         this._asset = this.scene.physics.add.image(32,32,'ghost');
+        this._debug = this.scene.add.text(16,16, '');
         this._itemsInRange = this.scene.physics.overlapCirc(x,y, this._asset.height+100)
     }
 
@@ -36,8 +38,6 @@ export default class Ghost extends Phaser.GameObjects.Container {
 
     public create(): void {
         this.add(this._asset);
-        this._asset.setCollideWorldBounds(true);
-        this._asset.setAcceleration(5);
         /**
          * The function called in the Game or Factory create() method.
          * 
@@ -46,23 +46,22 @@ export default class Ghost extends Phaser.GameObjects.Container {
     }  
 
     public update(): void {
-        if(this._cursors.up.isDown || this._cursors.down.isDown){
-            if(this._cursors.up.isDown)
-                this._asset.setVelocityY(-this._speed);
-            if(this._cursors.down.isDown)
-                this._asset.setVelocityY(this._speed);
+        this._debug.text = 'Velocity : '+ this._asset.body.velocity.length() + ' | Speed :' + this._asset.body.speed + ' | Acceleration' + this._asset.body.acceleration.length() 
+        if(this._cursors.up.isDown){
+            this._asset.setVelocityY(-this._speed);
+        }else if(this._cursors.down.isDown){
+            this._asset.setVelocityY(this._speed);
         }else{
             this._asset.setVelocityY(0);
         }
 
-        if(this._cursors.left.isDown || this._cursors.right.isDown){
-            if(this._cursors.left.isDown)
-                this._asset.setVelocityX(-this._speed);
-            if(this._cursors.right.isDown)
-                this._asset.setVelocityX(this._speed);
+        if(this._cursors.left.isDown){
+            this._asset.setVelocityX(-this._speed);
+        }if(this._cursors.right.isDown){
+            this._asset.setVelocityX(this._speed);
         }else{
             this._asset.setVelocityX(0);
-        }
+        }        
 
         if(this._cursors.space.isDown){
             this._itemsInRange.forEach(itemInRange => {
