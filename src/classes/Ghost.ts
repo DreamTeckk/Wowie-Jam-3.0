@@ -1,13 +1,8 @@
-import { GameObjects, Scene } from 'phaser';
+import { Scene } from 'phaser';
+import UsableObject from './UsableObject';
 
-/**
- * Here we create a Player class that is represented as a Phaser Container in the game Scene.
- * Phaser Containers acts as GameObjects group. It is usefull for manipulate multiple GameObjects at once, 
- * like for moving theme at a same position and a same speed without doing it for every GameObject of the group.
- */
 export default class Ghost extends Phaser.GameObjects.Container {
 
-    private _timeLeft: number;
     private _speed: number;
     private _isAlive: boolean;
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;    
@@ -16,39 +11,26 @@ export default class Ghost extends Phaser.GameObjects.Container {
 
     private _debug
 
-    constructor(x: number, y: number, scene: Scene) {
+    constructor(x: number, y: number, scene: Scene, usableObjectsGroup) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
         
-        this._speed = 300;
+        this._speed = 150;
         this._isAlive = true;
         this._cursors = this.scene.input.keyboard.createCursorKeys();
-        this._asset = this.scene.physics.add.image(32,32,'ghost');
+        this._asset = this.scene.physics.add.image(x,y,'ghost');
         this._debug = this.scene.add.text(16,16, '');
-        this._itemsInRange = this.scene.physics.overlapCirc(x,y, this._asset.height+100)
-    }
-
-    // Speed getter and setter
-    //...
-
-    // Damage Points getter and setter
-    //...
-
-    // Is Alive getter and setter
-    //...
+        this.scene.physics.add.overlap(this._asset, usableObjectsGroup, this.objectAction.bind(this))
+        }
 
     public create(): void {
         this.add(this._asset);
-        /**
-         * The function called in the Game or Factory create() method.
-         * 
-         * Here are initialized all the assets, animations, and visual or sound dependencies of the Player
-         */ 
     }  
 
     public update(): void {
-        this._debug.text = 'Velocity : '+ this._asset.body.velocity.length() + ' | Speed :' + this._asset.body.speed + ' | Acceleration' + this._asset.body.acceleration.length() 
+        //this._debug.text = 'Velocity : '+ this._asset.body.velocity.length() + ' | Speed : ' + this._asset.body.speed + ' | Acceleration : ' + this._asset.body.acceleration.length() 
         if(this._cursors.up.isDown){
             this._asset.setVelocityY(-this._speed);
+            this._itemsInRange
         }else if(this._cursors.down.isDown){
             this._asset.setVelocityY(this._speed);
         }else{
@@ -57,28 +39,31 @@ export default class Ghost extends Phaser.GameObjects.Container {
 
         if(this._cursors.left.isDown){
             this._asset.setVelocityX(-this._speed);
-        }if(this._cursors.right.isDown){
+        }else if(this._cursors.right.isDown){
             this._asset.setVelocityX(this._speed);
         }else{
             this._asset.setVelocityX(0);
-        }        
+        }  
+        
+        /*this._itemsInRange = this.scene.physics.overlapRect(this._asset.x,this._asset.y, this._asset.width, this._asset.height)
 
+        this._itemsInRange.forEach((itemInRange:Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody) => {
+            //console.log("test")
+            //console.log(itemInRange.gameObject)
+            //itemInRange.gameObject.destroy();
+        });    
+        //console.log("test")
         if(this._cursors.space.isDown){
-            this._itemsInRange.forEach(itemInRange => {
-                itemInRange.GameObject.actionGhost();
+            this._itemsInRange.forEach((itemInRange:Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody) => {
+                console.log(itemInRange.gameObject)
+                //itemInRange.gameObject.destroy();
             });
+        }*/
+    }
+
+    public objectAction(ghost, object){
+        if(this._cursors.space.isDown){
+            object.actionGhost()
         }
-        /**
-         * The function called in the Game or Factory update() method.
-         * 
-         * Here are all the Player visual, sound or parameters update that should be applied 
-         * every time the Game Canvas update.
-         * 
-         * A simple expemple is the Player's position update : 
-         * - every update we check if a direction key is pressed.
-         * - if it's true, we update the x and y position of the Player depending on his speed.
-         * 
-         * TIPS : Phaser automatically update animations with spritesheets when created.
-         */ 
     }
 }

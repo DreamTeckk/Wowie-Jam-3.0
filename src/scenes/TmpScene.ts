@@ -24,7 +24,7 @@ export default class TmpScene extends Phaser.Scene {
     }
 
     public create(): void {
-        this._gameObjects.push(new Ghost(200,200,this));
+        this._gameObjects.push(new Ghost(200,200,this, null));
         /**
          * The create() method is called after the preload() method has finished loading all the assets.
          * Here we can call the create() methods of our others Classes and add the logic to setup the 

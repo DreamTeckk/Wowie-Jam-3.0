@@ -6,12 +6,13 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 
 import { Scene } from 'phaser';
 import Ghost from '../classes/Ghost'
+import UsableObject from '../classes/UsableObject'
 
 
 export default class TestScene extends Scene {
 
     private _ghost
-    private _gameObjects = [];
+    private _gameObjects;
 
     constructor() {
         super(config)
@@ -35,7 +36,8 @@ export default class TestScene extends Scene {
         map.createLayer('Wall', tiles, 0, 0);
         map.createLayer('Door', tiles, 0, 0);
 
-        this._ghost = new Ghost(200,200,this);
+        this._gameObjects = this.physics.add.staticGroup(new UsableObject(300,300,this))
+        this._ghost = new Ghost(400,400,this,this._gameObjects);
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
@@ -45,6 +47,5 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this._ghost.update()
-        //this._gameObjects.forEach(gameObject => gameObject.update());
     }
 }
