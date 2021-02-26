@@ -13,7 +13,8 @@ export default class Player extends Phaser.GameObjects.Container {
     private _xPos;
     private _yPos;
     private _player;
-    private _sprite;
+
+    private _body;
 
     private _playerSpeed;
     private _idle;
@@ -25,6 +26,8 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = true;
         this._playerSpeed = 300;
         this._idle = true;
+
+        this._body = this.body;
         
         this._xPos = x;
         this._yPos = y;
@@ -40,15 +43,21 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = value;
     }
 
+    get bod(): Body {
+        return this._body;
+    }
+
     public create(): void {
+
+        console.log(this);
+
+        this.setSize(32, 32);
 
         this._player = this.scene.physics.add.sprite(this._xPos, this._yPos, 'player');
 
         this._cursor = this.scene.input.keyboard.createCursorKeys();
 
         this._player.setMaxVelocity(this._playerSpeed, this._playerSpeed);
-
-        this._player.body.collideWorldBounds = true;
 
         this.scene.anims.create({
             key: 'left',
@@ -75,6 +84,8 @@ export default class Player extends Phaser.GameObjects.Container {
             frameRate: 4,
             repeat: -1
         });
+
+        this.scene.add.existing(this);
     }  
 
     public update(): void {
