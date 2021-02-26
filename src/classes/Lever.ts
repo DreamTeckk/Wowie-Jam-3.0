@@ -13,7 +13,7 @@ export default class Activator extends Phaser.GameObjects.Container {
     private _xPos;
     private _yPos;
 
-    private _isActivated : boolean;
+    private _isActivated: boolean;
 
 
 
@@ -30,9 +30,9 @@ export default class Activator extends Phaser.GameObjects.Container {
         this._activator = this.scene.physics.add.sprite(this._xPos, this._yPos, 'activator');
 
         //this.physics.add.collider(stars, platforms);
-    }  
+    }
 
     public update(): void {
-        
+        //
     }
 }

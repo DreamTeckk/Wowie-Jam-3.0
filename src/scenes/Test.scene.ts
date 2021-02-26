@@ -11,7 +11,7 @@ import Player from '../classes/Player';
 
 export default class TestScene extends Scene {
 
-    private _player;
+    private player;
     private _lever;
 
 
@@ -52,18 +52,17 @@ export default class TestScene extends Scene {
         map.setCollisionBetween(1, 999, true, true, this._walls);
 
         //Player
-        this._player = new Player(100, 200, this);
-        this._player.create();
+        this.player = new Player(100, 200, this);
+        this.player.create();
 
         this._player2 = this.physics.add.sprite(100, 400, 'player');
 
-        console.log(this._player2);
+        //console.log(this._player2);
 
-        console.log(this._player);
+        console.log(this.player);
 
-        this.physics.add.collider(this._player, this._walls);
+        this.physics.add.collider(this.player._body, this._walls);
 
-        
 
         //Lever
         this._lever = new Activator(400, 400, this);
@@ -76,6 +75,6 @@ export default class TestScene extends Scene {
      * This is a smoothed and capped value based on the FPS rate.
      */
     public update(time: number, delta: number): void {
-        this._player.update();
+        this.player.update();
     }
 }

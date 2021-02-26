@@ -14,8 +14,6 @@ export default class Player extends Phaser.GameObjects.Container {
     private _yPos;
     private _player;
 
-    private _body;
-
     private _playerSpeed;
     private _idle;
 
@@ -26,9 +24,6 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = true;
         this._playerSpeed = 300;
         this._idle = true;
-
-        this._body = this.body;
-        
         this._xPos = x;
         this._yPos = y;
     }
@@ -43,17 +38,16 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = value;
     }
 
-    get bod(): Body {
-        return this._body;
+    get _body(): Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | MatterJS.BodyType {
+        return this.body
     }
 
     public create(): void {
 
-        console.log(this);
-
         this.setSize(32, 32);
-
         this._player = this.scene.physics.add.sprite(this._xPos, this._yPos, 'player');
+        this.add(this._player);
+        this.body = this._player;
 
         this._cursor = this.scene.input.keyboard.createCursorKeys();
 
@@ -68,13 +62,13 @@ export default class Player extends Phaser.GameObjects.Container {
 
         this.scene.anims.create({
             key: 'turn',
-            frames: [ { key: 'player', frame: 0 } ],
+            frames: [{ key: 'player', frame: 0 }],
             frameRate: 4
         });
-        
+
         this.scene.anims.create({
             key: 'idle',
-            frames: [ { key: 'player', frame: 0 } ],
+            frames: [{ key: 'player', frame: 0 }],
             frameRate: 4
         });
 
@@ -86,53 +80,46 @@ export default class Player extends Phaser.GameObjects.Container {
         });
 
         this.scene.add.existing(this);
-    }  
+    }
 
     public update(): void {
-        if (this._cursor.left.isDown)
-        {
+        if (this._cursor.left.isDown) {
             this._idle = false;
 
             this._player.setVelocityX(-this._playerSpeed);
 
             this._player.anims.play('left', this._player);
         }
-        else if (this._cursor.right.isDown)
-        {
+        else if (this._cursor.right.isDown) {
             this._idle = false;
 
             this._player.setVelocityX(this._playerSpeed);
 
             this._player.anims.play('right', this._player);
         }
-        else
-        {
+        else {
             this._idle = true;
             this._player.setVelocityX(0);
         }
 
-        if (this._cursor.up.isDown)
-        {
+        if (this._cursor.up.isDown) {
             this._player.setVelocityY(-this._playerSpeed);
 
             this._player.anims.play('right', this._player);
         }
-        else if (this._cursor.down.isDown)
-        {
+        else if (this._cursor.down.isDown) {
             this._player.setVelocityY(this._playerSpeed);
 
             this._player.anims.play('right', this._player);
         }
-        else
-        {
+        else {
             this._player.setVelocityY(0);
 
-            if(this._idle == true)
+            if (this._idle == true)
                 this._player.anims.play('idle', this._player);
         }
 
-        if (this._cursor.space.isDown)
-        {
+        if (this._cursor.space.isDown) {
 
         }
     }
