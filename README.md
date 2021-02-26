@@ -96,7 +96,7 @@ Here's a code sample of a class's base :
 import { Scene } from 'phaser';
 
 /**
- * Here we create a Player class that is represented as a Phaser Container in the game Scene.
+ * Here we create a Player class that is represented by a Phaser Container in the game Scene.
  * Phaser Containers acts as GameObjects group. It is usefull for manipulate multiple GameObjects at once, 
  * like for moving theme at a same position and a same speed without doing it for every GameObject of the group.
  */

@@ -1,28 +1,24 @@
 import * as Phaser from 'phaser';
-
-
-const height = window.innerHeight * devicePixelRatio;
-const width = window.innerWidth * devicePixelRatio;
+import TestScene from './scenes/Test.scene';
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
     title: 'Game Title',
     type: Phaser.AUTO,
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.NONE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width,
-        height,
+        width: 1000,
+        height: 600,
     },
-    scene: /* Provide here the startup scene of the Game (e.g.: MainTitleScene)*/ null,
+    scene: TestScene,
     physics: {
         default: 'arcade',
         arcade: {
             debug: true,
         },
     },
-
     parent: 'game',
-    backgroundColor: '#000000',
+    backgroundColor: '#aaa',
 };
 
 export const game = new Phaser.Game(gameConfig);
