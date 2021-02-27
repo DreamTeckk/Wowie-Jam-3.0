@@ -49,6 +49,7 @@ export default class TestScene extends Scene {
     }
 
     public create(): void {
+
         // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
         const tiles = map.addTilesetImage('tileset_test', 'tiles');
@@ -77,6 +78,15 @@ export default class TestScene extends Scene {
         // Register the Player
         this.player = new Player(100, 200, this);
         this.player.create();
+
+        //this.cameras.main.setZoom(1,2);
+        //this.cameras.main.setPosition(-this.player.x, -this.player.y);
+
+        //this.cameras.main.setBounds(0, 0, 1024, 640);
+
+        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
+
 
         // Register the Ghost
         this.ghost = new Ghost(100, 200, this);
@@ -176,6 +186,9 @@ export default class TestScene extends Scene {
         this.player.death();
         this.ghost.death(this.player.player.x, this.player.player.y);
         this.time.delayedCall(3000, () => this.revive(), null, this);
+        this.cameras.main.stopFollow();
+        this.cameras.main.startFollow(this.ghost.asset);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
     }
 
     public revive(): void {

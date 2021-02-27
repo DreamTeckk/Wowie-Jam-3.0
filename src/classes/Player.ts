@@ -134,19 +134,19 @@ export default class Player extends Phaser.GameObjects.Container {
 
             if (this.player.body.velocity.x > 0) {
                 console.log("x > 0");
-                this._player.setPosition(this.player.x - 5, this.player.y);
+                this._player.setPosition(this.player.x - 10, this.player.y);
             }
             if (this.player.body.velocity.y > 0) {
                 console.log("y > 0");
-                this._player.setPosition(this.player.x, this.player.y - 5);
+                this._player.setPosition(this.player.x, this.player.y - 10);
             }
             if (this.player.body.velocity.x < 0) {
                 console.log("x < 0");
-                this._player.setPosition(this.player.x + 5, this.player.y);
+                this._player.setPosition(this.player.x + 10, this.player.y);
             }
             if (this.player.body.velocity.y < 0) {
                 console.log("y < 0");
-                this._player.setPosition(this.player.x, this.player.y + 5);
+                this._player.setPosition(this.player.x, this.player.y + 10);
             }
             this._player.setVelocityX(0);
             this._player.setVelocityY(0);
