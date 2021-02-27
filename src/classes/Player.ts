@@ -48,7 +48,7 @@ export default class Player extends Phaser.GameObjects.Container {
     public create(): void {
 
         this.setSize(32, 32);
-        this._player = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
+        this._player = this.scene.physics.add.sprite(0, 0, 'player');
         this.add(this._player);
 
         this._player.setMaxVelocity(this.playerSpeed);

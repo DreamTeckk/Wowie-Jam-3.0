@@ -7,13 +7,17 @@ export default class Spike extends Phaser.GameObjects.Container {
     private yPos: number;
     private _opened: boolean;
     private _id: number;
+    private _width: number;
+    private _height: number;
 
-    constructor(x: number, y: number, id: number, scene: Scene) {
+    constructor(x: number, y: number, width: number, height: number, id: number, scene: Scene) {
         super(scene, x, y)
         this.xPos = x;
         this.yPos = y;
         this._id = id;
         this._opened = false;
+        this._height = height;
+        this._width = width;
     }
 
     get opened(): boolean {
@@ -33,10 +37,9 @@ export default class Spike extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-        this.sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000).setOrigin(0.5, 0.5);
-        //this.sprite = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
-        this.add(this.sprite)
-        this.setSize(32, 32);
+        //this.sprite = this.scene.add.rectangle(0, 0, this._width, this._height, 0xFF0000).setOrigin(0.5, 0.5);
+        //this.add(this.sprite)
+        this.setSize(this._width, this._height);
         this.setInteractive();
 
         this.scene.add.existing(this);

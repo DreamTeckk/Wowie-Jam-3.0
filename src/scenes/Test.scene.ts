@@ -19,17 +19,21 @@ export default class TestScene extends Scene {
     private player: Player;
     private lever: Lever;
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
-    private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
     private fireballLauncher: FireballsLauncher;
     private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
-    private tpTiles: Phaser.Types.Tilemaps.TiledObject[];
     private ghost: Ghost;
-    private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
-    private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
     private doors: Door[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
-    private invincible: boolean = false;
+    private invincible = false;
+
+    /** Object Layer */
+    private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private tpTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private startTile: Phaser.Types.Tilemaps.TiledObject;
+    private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private endTile: Phaser.Types.Tilemaps.TiledObject;
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
@@ -42,7 +46,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/test-map.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-1.json');
 
         // Load Player sprite
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
@@ -56,14 +60,23 @@ export default class TestScene extends Scene {
 
         // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
-        const tiles = map.addTilesetImage('tileset_test', 'tiles');
+        const tiles = map.addTilesetImage('TileSet', 'tiles');
 
         // Display Map Layers 
-        map.createLayer('Ground', tiles, 0, 0);
-        this.walls = map.createLayer('Wall', tiles, 0, 0);
-        this.doorTiles = map.getObjectLayer('Door').objects;
-        this.leverTiles = map.getObjectLayer('Lever').objects;
-        this.tpTiles = map.getObjectLayer('Teleporter').objects;
+        map.createLayer('Ground', tiles);
+        map.createLayer('Spikes', tiles);
+        map.createLayer('Lava', tiles);
+        this.walls = map.createLayer('Walls', tiles);
+        this.doorTiles = map.getObjectLayer('Doors').objects;
+        this.leverTiles = map.getObjectLayer('Levers').objects;
+        this.tpTiles = map.getObjectLayer('Teleporters').objects;
+        this.startTile = map.getObjectLayer('Start').objects[0];
+        this.endTile = map.getObjectLayer('End').objects[0];
+        this.spikeTiles = map.getObjectLayer('SpikesObject').objects;
+
+        this.add.existing(this.add.rectangle(this.startTile.x, this.startTile.y, 32, 32, 0x555555));
+        this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
+        //this.add.existing()
 
         // Display teleporters
         this.tpTiles.forEach(tp => {
@@ -74,6 +87,7 @@ export default class TestScene extends Scene {
         // Display levers
         this.leverTiles.forEach(lever => {
             const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this);
+            l.create();
             this.levers.push(this.physics.add.staticGroup(l));
         });
 
@@ -87,10 +101,13 @@ export default class TestScene extends Scene {
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
-        this.player = new Player(100, 200, this);
+        console.log(this.startTile.x, this.startTile.y);
+
+        //this.player = new Player(0, 0, this);
+        this.player = new Player(this.startTile.x, this.startTile.y, this);
         this.player.create();
 
-        //this.cameras.main.setZoom(1,2);
+        this.cameras.main.setZoom(1.2, 1.2);
         //this.cameras.main.setPosition(-this.player.x, -this.player.y);
 
         //this.cameras.main.setBounds(0, 0, 1024, 640);
@@ -100,7 +117,7 @@ export default class TestScene extends Scene {
 
 
         // Register the Ghost
-        this.ghost = new Ghost(100, 200, this);
+        this.ghost = new Ghost(this.player.x, this.player.y, this);
         this.ghost.create();
 
         // Set wall layer as collinding layer
@@ -110,12 +127,9 @@ export default class TestScene extends Scene {
         this.physics.add.collider(this.player.player, this.walls);
         this.physics.add.collider(this.ghost.asset, this.walls);
 
-        //Create spikes objects
-        this.spikeTiles = map.getObjectLayer('Spikes').objects;
-
         //Add spikes into an array of Group
         this.spikeTiles.forEach(spike => {
-            const d = new Spike(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), this);
+            const d = new Spike(spike.x + spike.width / 2, spike.y + spike.height / 2, spike.width, spike.height, parseInt(spike.name), this);
             d.create();
             this.spikes.push(this.physics.add.staticGroup(d));
         });
@@ -132,10 +146,10 @@ export default class TestScene extends Scene {
         })
 
         this.physics.add.collider(this.ghost.asset, this.walls);
-        this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
-        this.fireballLauncher.create()
-        this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
-        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+        //this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
+        //this.fireballLauncher.create()
+        //this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
+        //this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
         this.ghost.events.on('interact', (object) => {
             //
         })

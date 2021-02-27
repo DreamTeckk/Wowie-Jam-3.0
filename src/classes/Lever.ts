@@ -7,7 +7,7 @@ export default class Lever extends Phaser.GameObjects.Container {
     private _xPos: number;
     private _yPos: number;
     private _isActivated: boolean;
-    private _activator: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private objectSprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private _activationTime: number;
 
     constructor(x: number, y: number, id: number, scene: Scene) {
@@ -41,9 +41,10 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-        this._activator = this.scene.physics.add.sprite(this._xPos, this._yPos, 'activator');
-        this.add(this._activator)
-        this.setSize(32, 32);
+        this.objectSprite = this.scene.physics.add.sprite(0, 0, 'activator');
+        this.add(this.objectSprite)
+        this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xffffff))
+        this.setSize(64, 64);
         this.setInteractive();
         this.scene.add.existing(this);
     }

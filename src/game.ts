@@ -12,8 +12,8 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     scale: {
         mode: Phaser.Scale.NONE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1000,
-        height: 600,
+        width: 1200,
+        height: 800,
     },
     scene: TestScene,
     physics: {

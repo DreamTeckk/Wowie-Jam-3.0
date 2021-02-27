@@ -17,7 +17,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
         this._speed = 300;
         this._isAlive = true;
         this._cursors = this.scene.input.keyboard.createCursorKeys();
-        this._asset = this.scene.physics.add.image(x, y, 'ghost');
+        this._asset = this.scene.physics.add.image(0, 0, 'ghost');
         this._debug = this.scene.add.text(16, 16, '');
         this.actionPressed = false;
         // this.scene.physics.add.overlap(this._asset, usableObjectsGroup, this.objectAction.bind(this))
