@@ -121,7 +121,7 @@ export default class TestScene extends Scene {
                 if (object === lever) {
                     lever.actionGhost();
                     this.initDoorLogic(lever);
-
+                    this.revive();
                 }
             });
         })
