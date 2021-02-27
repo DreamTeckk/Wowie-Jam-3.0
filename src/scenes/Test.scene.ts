@@ -28,6 +28,7 @@ export default class TestScene extends Scene {
     private fires: Fire[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
     private leversGhost: Phaser.Physics.Arcade.StaticGroup[] = [];
+    private pressurePlates: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
 
     /** Object Layer */
@@ -40,6 +41,7 @@ export default class TestScene extends Scene {
     private fireballLaucherTiles: Phaser.Types.Tilemaps.TiledObject[];
     private endTile: Phaser.Types.Tilemaps.TiledObject;
     private fireTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private pressurePlateTiles: Phaser.Types.Tilemaps.TiledObject[];
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
@@ -124,6 +126,13 @@ export default class TestScene extends Scene {
             d.create();
             this.spikes.push(this.physics.add.staticGroup(d));
         });
+
+        //Display pressure plate 
+        //this.tpTiles.forEach(tp => {
+            const l = new Lever(500,500, 1, this, null);
+            l.create();
+            this.pressurePlates.push(this.physics.add.staticGroup(l));
+        //});
 
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
@@ -239,8 +248,19 @@ export default class TestScene extends Scene {
                 }
             });
         })
-    }
 
+        this.pressurePlates.forEach(e => {
+            this.physics.add.overlap(this.player.player, e, (player, e) => {
+                const lever = e as Lever
+                // Activate the lever
+                lever.isActivated = true;
+                // Deactivate the lever after x milliseconds
+                this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+                this.initDoorLogic(lever);
+                this.initFireBallLauncherLogic(lever)   
+            })
+        })
+    }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
      * from Request Animation Frame, or Date.now if using SetTimeout.
@@ -288,7 +308,8 @@ export default class TestScene extends Scene {
                 // Get all levers requires to switch the launcher.
                 const requiredLever = [
                     ...this.levers.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id))
+                    ...this.leversGhost.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id)),
+                    ...this.pressurePlates.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id))
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
@@ -310,7 +331,8 @@ export default class TestScene extends Scene {
                 // Get all levers requires to switch the launcher.
                 const requiredLever = [
                     ...this.levers.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id))
+                    ...this.leversGhost.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id)),
+                    ...this.pressurePlates.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id))
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;

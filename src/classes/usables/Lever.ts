@@ -20,6 +20,7 @@ export default class Lever extends Phaser.GameObjects.Container {
         this._isActivated = false;
         this._activationTime = 10000;
         this._ghost = ghost;
+        
     }
 
     get id(): number {
@@ -53,10 +54,16 @@ export default class Lever extends Phaser.GameObjects.Container {
     public create(): void {
         this.objectSprite = this.scene.physics.add.sprite(0, 0, 'activator');
         this.add(this.objectSprite)
-        if (this._ghost)
-            this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xffffff))
-        else
-            this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xaaaaaa))
+        if(this._ghost !== null){
+            if (this._ghost)
+                this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xffffff))
+            else
+                this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xaaaaaa))
+        }else{
+            console.log('pressure plate')
+            this.add(this.scene.add.rectangle(0, 0, 32, 32, 0x582900))
+        }
+        
         this.setSize(48, 48);
         this.setInteractive();
         this.scene.add.existing(this);
