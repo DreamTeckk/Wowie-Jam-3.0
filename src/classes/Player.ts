@@ -1,4 +1,5 @@
-import { GameObjects, Scene } from 'phaser';
+import { Vector } from 'matter';
+import { GameObjects, Physics, Scene } from 'phaser';
 
 
 /**
@@ -9,13 +10,15 @@ import { GameObjects, Scene } from 'phaser';
 export default class Player extends Phaser.GameObjects.Container {
 
     private _isAlive: boolean;
-    private cursor;
-    private xPos;
-    private yPos;
-    private player;
+    private cursor: Phaser.Types.Input.Keyboard.CursorKeys;
+    private xPos: number;
+    private yPos: number;
+    private _player: Physics.Arcade.Sprite;
 
-    private playerSpeed;
+    private playerSpeed: number;
     private idle;
+
+    private playerVelocity: Vector;
 
 
     constructor(x: number, y: number, scene: Scene) {
@@ -38,22 +41,19 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = value;
     }
 
-    get _body(): Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | MatterJS.BodyType {
-        return this.body
+    get player(): Phaser.GameObjects.Sprite {
+        return this._player
     }
 
     public create(): void {
 
         this.setSize(32, 32);
-        this.player = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
-        this.add(this.player);
-        this.body = this.player;
+        this._player = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
+        this.add(this._player);
 
-        this.player.body.setMaxSpeed(this.playerSpeed);
+        this._player.setMaxVelocity(this.playerSpeed);
 
         this.cursor = this.scene.input.keyboard.createCursorKeys();
-
-        this.player.setMaxVelocity(this.playerSpeed, this.playerSpeed);
 
         this.scene.anims.create({
             key: 'left',
@@ -85,44 +85,77 @@ export default class Player extends Phaser.GameObjects.Container {
     }
 
     public update(): void {
-        if (this.cursor.left.isDown) {
-            this.idle = false;
+        if(this._isAlive) {
+            if (this.cursor.left.isDown) {
+                this.idle = false;
+                this._player.setVelocityX(-this.playerSpeed);
 
-            this.player.setVelocityX(-this.playerSpeed);
+                this._player.anims.play('left');
+            }
+            else if (this.cursor.right.isDown) {
+                this.idle = false;
 
-            this.player.anims.play('left', this.player);
+                this._player.setVelocityX(this.playerSpeed);
+
+                this._player.anims.play('right');
+            }
+            else {
+                this.idle = true;
+                this._player.setVelocityX(0);
+            }
+
+            if (this.cursor.up.isDown) {
+                this._player.setVelocityY(-this.playerSpeed);
+
+                this._player.anims.play('right');
+            }
+            else if (this.cursor.down.isDown) {
+                this._player.setVelocityY(this.playerSpeed);
+
+                this._player.anims.play('right');
+            }
+            else {
+                this._player.setVelocityY(0);
+
+                if (this.idle == true)
+                    this._player.anims.play('idle');
+            }
+
+            if (this.cursor.space.isDown) {
+
+            }
         }
-        else if (this.cursor.right.isDown) {
-            this.idle = false;
+    }
 
-            this.player.setVelocityX(this.playerSpeed);
-
-            this.player.anims.play('right', this.player);
+    public death(object): void {
+        if(this._isAlive) {
+            console.log("t mor lol")
+            this._isAlive = false;
+ 
+            if(this.player.body.velocity.x > 0) {
+                console.log("x > 0");
+                this._player.setPosition(this.player.x - 5, this.player.y);
+            }
+            if(this.player.body.velocity.y > 0) {
+                console.log("y > 0");
+                this._player.setPosition(this.player.x, this.player.y - 5);
+            }
+            if(this.player.body.velocity.x < 0) {
+                console.log("x < 0");
+                this._player.setPosition(this.player.x + 5, this.player.y);
+            }
+            if(this.player.body.velocity.y < 0) {
+                console.log("y < 0");
+                this._player.setPosition(this.player.x, this.player.y + 5);
+            }
+            this._player.setVelocityX(0);
+            this._player.setVelocityY(0); 
+            this._player.setActive(false).setVisible(false);
         }
-        else {
-            this.idle = true;
-            this.player.setVelocityX(0);
-        }
+    } 
 
-        if (this.cursor.up.isDown) {
-            this.player.setVelocityY(-this.playerSpeed);
-
-            this.player.anims.play('right', this.player);
-        }
-        else if (this.cursor.down.isDown) {
-            this.player.setVelocityY(this.playerSpeed);
-
-            this.player.anims.play('right', this.player);
-        }
-        else {
-            this.player.setVelocityY(0);
-
-            if (this.idle == true)
-                this.player.anims.play('idle', this.player);
-        }
-
-        if (this.cursor.space.isDown) {
-
-        }
+    public revive(): void {
+        this._isAlive = true;
+        this._player.setActive(true).setVisible(true);
     }
 }

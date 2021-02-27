@@ -7,66 +7,103 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 import { Scene } from 'phaser';
 import Activator from '../classes/Lever';
 import Player from '../classes/Player';
-import Spike from '../classes/Spike';
+import Spike from '../classes/Spike'
+import Ghost from '../classes/Ghost'
+import UsableObject from '../classes/UsableObject'
 
 
 export default class TestScene extends Scene {
 
-    private player;
-
-    private spikeGroup;
-
+    private player: Player;
+    private lever;
+    private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
-    //private spikes: any[] = [];
-
     private walls;
+    private ghost: Ghost;
+    private gameObjects: Phaser.Physics.Arcade.StaticGroup;
 
     constructor() {
         super(config)
     }
 
-
     public preload(): void {
-        //TileMap
+        //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset.png');
         this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/test-map.json');
 
-        //Player
+        // Load Player sprite
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
-
-        //Objects
+        // Load Activator sprite
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
+        // Load Ghost sprite
+        this.load.image('ghost', '/assets/images/ghost.png');
     }
 
     public create(): void {
-        //TileMap
+        // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
         const tiles = map.addTilesetImage('tileset_test', 'tiles');
 
+        // Display Map Layers 
         map.createLayer('Ground', tiles, 0, 0);
         this.walls = map.createLayer('Wall', tiles, 0, 0);
         map.createLayer('Door', tiles, 0, 0);
 
-        this.spikeGroup = this.physics.add.group();
-        this.spikeTiles = map.getObjectLayer('Spikes').objects;
-        this.spikeTiles.forEach(spike => {
-            const d = new Spike(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), this);
-            d.create();
-            this.spikeGroup.create(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), 'spike')
-            //this.spikes.push(d);
-        });
-
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
-        //Player
+        // Register the Player
         this.player = new Player(100, 200, this);
         this.player.create();
 
-        //Collision entre le joueur et un mur
-        this.physics.add.collider(this.player._body, this.walls);
+        // Register the Ghost
+        this.ghost = new Ghost(100, 200, this/*, this.gameObjects*/);
+        this.ghost.create();
 
-        //Detection d'un piege
-        this.physics.add.overlap(this.player._body, this.spikeGroup, test, null, this);
+        // Set wall layer as collinding layer
+        map.setCollisionBetween(1, 999, true, true, this.walls);
+
+        // Create collisions between Player and Walls
+        this.physics.add.collider(this.player.player, this.walls);
+        this.physics.add.collider(this.ghost.asset, this.walls);
+
+        //Create spikes objects
+        this.spikeTiles = map.getObjectLayer('Spikes').objects;
+
+        //Add spikes into an array of Group
+        this.spikeTiles.forEach(spike => {
+            const d = new Spike(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), this);
+            d.create();
+            this.spikes.push(this.physics.add.staticGroup(d));
+        });
+
+        console.log(this.spikes)
+
+        this.spikes.forEach(e => {
+            this.physics.add.overlap(this.player.player, e, () => this.death(e));
+            /*this.ghost.events.on('interact', (object) => {
+                if (object === (e.children.entries[0] as UsableObject))
+                    (e.children.entries[0] as UsableObject).actionGhost();
+
+            });*/
+        })
+
+
+        const usableObjectsArr = [this.physics.add.staticGroup(new UsableObject(300, 300, this)), this.physics.add.staticGroup(new UsableObject(500, 500, this))]
+        //this.gameObjects = this.physics.add.staticGroup(new UsableObject(300, 300, this))
+
+        usableObjectsArr.forEach(e => {
+            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as UsableObject)));
+            this.ghost.events.on('interact', (object) => {
+                if (object === (e.children.entries[0] as UsableObject))
+                    (e.children.entries[0] as UsableObject).actionGhost();
+            });
+        })
+
+        this.ghost.events.on('interact', (object) => {
+            //
+        })
+        // this.physics.add.overlap(this.ghost.asset, this.gameObjects, (object) => this.ghost.objectAction(object));
+
     }
 
     /**
@@ -77,10 +114,18 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-    }
-}
 
-function test(player, spike) {
-    console.log("ok");
-    return false;
+        this.ghost.update()
+    }
+
+    public death(e): void {
+        this.player.death((e.children.entries[0] as Spike));
+        this.ghost.death();
+        this.time.delayedCall(3000, () => this.revive(e), null, this);
+    }
+
+    public revive(e): void {
+        this.player.revive();
+        this.ghost.revive(this.player.player.x, this.player.player.y);
+    }
 }
