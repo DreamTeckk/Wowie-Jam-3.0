@@ -176,15 +176,15 @@ export default class TestScene extends Scene {
             this.ghost.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-                    console.log(lever.id);
-
-                    // Activate the lever
-                    lever.isActivated = true;
-                    // Deactivate the lever after x milliseconds
-                    this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
-                    this.initDoorLogic(lever);
-                    this.initFireBallLauncherLogic(lever);
-                    this.revive();
+                    if (!lever.isActivated) {
+                        // Activate the lever
+                        lever.isActivated = true;
+                        // Deactivate the lever after x milliseconds
+                        this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+                        this.initDoorLogic(lever);
+                        this.initFireBallLauncherLogic(lever);
+                        this.revive();
+                    }
                 }
             });
         })
@@ -241,10 +241,10 @@ export default class TestScene extends Scene {
     }
 
     private initFireBallLauncherLogic(lever: Lever): void {
-        this.fireballLauchers.filter(fl => fl.activationPatern.includes(lever.id.toString()))
+        this.fireballLauchers.filter(fl => fl.leverPattern.includes(lever.id))
             .forEach(linkedFl => {
                 // Get all levers requires to switch the launcher.
-                const requiredLever = this.levers.filter(l => linkedFl.activationPatern.includes((l.children.entries[0] as Lever).id.toString()));
+                const requiredLever = this.levers.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id));
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
                 if (requiredLever.length === activatedLeversLength) {
@@ -252,7 +252,7 @@ export default class TestScene extends Scene {
                     linkedFl.isActivated = !linkedFl.isActivated;
 
                     // After delay we switch back the launchers
-                    this.time.delayedCall(2000, () => {
+                    this.time.delayedCall(parseInt(linkedFl.activationPatern[linkedFl.activationPatern.length - 1]) * 1000, () => {
                         linkedFl.isActivated = !linkedFl.isActivated;
                     });
                 }
