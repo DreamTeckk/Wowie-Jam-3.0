@@ -5,13 +5,14 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 }
 
 import { Scene } from 'phaser';
-import Lever from '../classes/Lever';
+import Lever from '../classes/usables/Lever';
 import Player from '../classes/Player';
-import Spike from '../classes/Spike'
+import Spike from '../classes/traps/Spike'
 import Ghost from '../classes/Ghost'
-import Door from '../classes/Door';
-import FireballsLauncher from '../classes/FireballsLauncher'
-import Teleporter from '../classes/Teleporter';
+import Door from '../classes/usables/Door';
+import FireballsLauncher from '../classes/traps/FireballsLauncher'
+import Teleporter from '../classes/usables/Teleporter';
+import Fire from '../classes/traps/Fire';
 
 export default class TestScene extends Scene {
 
@@ -23,6 +24,7 @@ export default class TestScene extends Scene {
     private ghost: Ghost;
     private doors: Door[] = [];
     private fireballLauchers: FireballsLauncher[] = [];
+    private fires: Fire[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
     private leversGhost: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
@@ -36,16 +38,13 @@ export default class TestScene extends Scene {
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
     private fireballLaucherTiles: Phaser.Types.Tilemaps.TiledObject[];
     private endTile: Phaser.Types.Tilemaps.TiledObject;
+    private fireTiles: Phaser.Types.Tilemaps.TiledObject[];
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
 
-    /** Activated */
-    private fireballLauncherActivated: FireballsLauncher[] = []
-
     constructor() {
         super(config)
-
     }
 
     public preload(): void {
@@ -72,14 +71,15 @@ export default class TestScene extends Scene {
         map.createLayer('Spikes', tiles);
         map.createLayer('Lava', tiles);
         this.walls = map.createLayer('Walls', tiles);
-        this.doorTiles = map.getObjectLayer('Doors').objects;
-        this.leverTiles = map.getObjectLayer('Levers').objects;
-        this.leverGhostTiles = map.getObjectLayer('GhostLevers').objects;
-        this.tpTiles = map.getObjectLayer('Teleporters').objects;
-        this.startTile = map.getObjectLayer('Start').objects[0];
-        this.endTile = map.getObjectLayer('End').objects[0];
-        this.spikeTiles = map.getObjectLayer('SpikesObject').objects;
-        this.fireballLaucherTiles = map.getObjectLayer('Launchers').objects;
+        this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
+        this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
+        this.leverGhostTiles = map.getObjectLayer('GhostLevers') ? map.getObjectLayer('GhostLevers').objects : [];
+        this.tpTiles = map.getObjectLayer('Teleporters') ? map.getObjectLayer('Teleporters').objects : [];
+        this.startTile = map.getObjectLayer('Start') ? map.getObjectLayer('Start').objects[0] : null;
+        this.endTile = map.getObjectLayer('End').objects ? map.getObjectLayer('End').objects[0] : null;
+        this.spikeTiles = map.getObjectLayer('SpikesObject') ? map.getObjectLayer('SpikesObject').objects : null;
+        this.fireballLaucherTiles = map.getObjectLayer('Launchers') ? map.getObjectLayer('Launchers').objects : [];
+        this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
         this.add.existing(this.add.rectangle(this.startTile.x, this.startTile.y, 32, 32, 0x555555));
         this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
@@ -103,7 +103,6 @@ export default class TestScene extends Scene {
             const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, true);
             l.create();
             this.leversGhost.push(this.physics.add.staticGroup(l).setVisible(false));
-
         });
 
         // Display doors 
@@ -145,6 +144,18 @@ export default class TestScene extends Scene {
             this.fireballLauchers.push(l);
         });
 
+        // Display fires 
+        this.fireTiles.forEach(ft => {
+            const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this, ft.name);
+            f.create();
+            this.physics.add.staticGroup(f)
+            this.physics.add.overlap(f, this.player.player, () => {
+                if (f.isActivated)
+                    this.death();
+            })
+            this.fires.push(f);
+        });
+
         // Register the Ghost
         this.ghost = new Ghost(this.player.x, this.player.y, this);
         this.ghost.create();
@@ -184,9 +195,8 @@ export default class TestScene extends Scene {
                         // Deactivate the lever after x milliseconds
                         this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
                         this.initDoorLogic(lever);
-                        //this.initGhostDoorLogic(lever);
-
                         this.initFireBallLauncherLogic(lever);
+                        this.initFireLogic(lever);
 
                         this.revive();
                     }
@@ -275,11 +285,33 @@ export default class TestScene extends Scene {
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
                 if (requiredLever.length === activatedLeversLength) {
                     // Activate all the launcher
-                    linkedFl.isActivated = !linkedFl.isActivated;
+                    linkedFl.changeState();
 
                     // After delay we switch back the launchers
                     this.time.delayedCall(parseInt(linkedFl.activationPatern[linkedFl.activationPatern.length - 1]) * 1000, () => {
-                        linkedFl.isActivated = !linkedFl.isActivated;
+                        linkedFl.changeState();
+                    });
+                }
+            })
+    }
+
+    private initFireLogic(lever: Lever): void {
+        this.fires.filter(fire => fire.leverPattern.includes(lever.id))
+            .forEach(linkedFires => {
+                // Get all levers requires to switch the launcher.
+                const requiredLever = [
+                    ...this.levers.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id))
+                ];
+                // Get the numbers of these levers that are activated
+                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                if (requiredLever.length === activatedLeversLength) {
+                    // Activate all the launcher
+                    linkedFires.changeState();
+
+                    // After delay we switch back the launchers
+                    this.time.delayedCall(parseInt(linkedFires.activationPatern[linkedFires.activationPatern.length - 1]) * 1000, () => {
+                        linkedFires.changeState();
                     });
                 }
             })

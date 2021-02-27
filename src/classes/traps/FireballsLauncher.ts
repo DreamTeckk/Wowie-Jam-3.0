@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { Direction } from '../enums/direction';
+import { Direction } from '../../enums/direction';
 
 export default class FireballsLauncher extends Phaser.GameObjects.Container {
 

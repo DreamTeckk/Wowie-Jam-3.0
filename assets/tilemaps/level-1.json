@@ -112,6 +112,29 @@
         }, 
         {
          "draworder":"topdown",
+         "id":15,
+         "name":"Fires",
+         "objects":[
+                {
+                 "gid":22,
+                 "height":32,
+                 "id":85,
+                 "name":"4-F-5",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":800,
+                 "y":224
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":3,
          "name":"SpikesObject",
          "objects":[
@@ -163,7 +186,7 @@
                  "gid":83,
                  "height":32,
                  "id":82,
-                 "name":"1",
+                 "name":"4",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -340,8 +363,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":15,
- "nextobjectid":85,
+ "nextlayerid":16,
+ "nextobjectid":86,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.2.5",
