@@ -75,7 +75,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         //
     }
 
-    public changeState() {
+    public changeState(): void {
         this._isActivated = !this._isActivated
     }
 
