@@ -38,7 +38,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     public create(): void {
         this.scene.time.addEvent({
-            delay: 200,
+            delay: 1000,
             callback: () => {
                 const fireball = this.scene.physics.add.sprite(this._assetLauncher.x, this._assetLauncher.y, 'fireball')
                 if (this._direction === Direction.SOUTH)
