@@ -1477,6 +1477,30 @@
                      "visible": true,
                      "x": 0,
                      "y": 0
+              },
+              {
+                     "draworder": "topdown",
+                     "id": 8,
+                     "name": "Teleporter",
+                     "objects": [
+                            {
+                                   "gid": 8,
+                                   "height": 32,
+                                   "id": 20,
+                                   "name": "",
+                                   "rotation": 0,
+                                   "type": "",
+                                   "visible": true,
+                                   "width": 32,
+                                   "x": 700,
+                                   "y": 300
+                            }
+                     ],
+                     "opacity": 1,
+                     "type": "objectgroup",
+                     "visible": true,
+                     "x": 0,
+                     "y": 0
               }
        ],
        "nextlayerid": 8,

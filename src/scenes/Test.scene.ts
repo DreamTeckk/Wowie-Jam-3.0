@@ -12,6 +12,7 @@ import Ghost from '../classes/Ghost'
 import Door from '../classes/Door';
 import FireballsLauncher from '../classes/FireballsLauncher'
 import { Direction } from '../enums/direction';
+import Teleporter from '../classes/Teleporter';
 
 export default class TestScene extends Scene {
 
@@ -21,11 +22,14 @@ export default class TestScene extends Scene {
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
     private fireballLauncher: FireballsLauncher;
+    private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
+    private tpTiles: Phaser.Types.Tilemaps.TiledObject[];
     private ghost: Ghost;
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
     private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
     private doors: Door[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
+    private invincible: boolean = false;
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
@@ -59,6 +63,13 @@ export default class TestScene extends Scene {
         this.walls = map.createLayer('Wall', tiles, 0, 0);
         this.doorTiles = map.getObjectLayer('Door').objects;
         this.leverTiles = map.getObjectLayer('Lever').objects;
+        this.tpTiles = map.getObjectLayer('Teleporter').objects;
+
+        // Display teleporters
+        this.tpTiles.forEach(tp => {
+            const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, parseInt(tp.name), this);
+            this.teleporters.push(this.physics.add.staticGroup(l));
+        });
 
         // Display levers
         this.leverTiles.forEach(lever => {
@@ -108,12 +119,8 @@ export default class TestScene extends Scene {
             d.create();
             this.spikes.push(this.physics.add.staticGroup(d));
         });
-        //Lever
-        //this.lever = new Activator(400, 400, this);
-        //this.lever.create();
 
-        console.log(this.spikes)
-
+        //Overlap spikes
         this.spikes.forEach(e => {
             this.physics.add.overlap(this.player.player, e, () => this.death());
         });
@@ -147,6 +154,18 @@ export default class TestScene extends Scene {
                 }
             });
         })
+
+        this.teleporters.forEach(e => {
+            // Check if player is on a teleporter action's zone 
+            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Teleporter)));
+            // Register the event emited whene the ghost interact with a teleporter
+            this.ghost.events.on('interact', (object) => {
+                const tp = e.children.entries[0] as Teleporter;
+                if (object === tp) {
+                    this.reviveTeleport();
+                }
+            });
+        })
     }
 
     /**
@@ -157,7 +176,7 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-        this.ghost.update()
+        this.ghost.update();
     }
 
     private initDoorLogic(lever: Lever): void {
@@ -183,16 +202,35 @@ export default class TestScene extends Scene {
             })
     }
     public death(): void {
-        this.player.death();
-        this.ghost.death(this.player.player.x, this.player.player.y);
-        this.time.delayedCall(3000, () => this.revive(), null, this);
-        this.cameras.main.stopFollow();
-        this.cameras.main.startFollow(this.ghost.asset);
-        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        if(!this.invincible) {
+            this.invincible = true;
+            this.time.delayedCall(4000, () => this.invincible = false, null, this);
+            this.player.death();
+            this.ghost.death(this.player.player.x, this.player.player.y);
+            this.time.delayedCall(3000, () => this.revive(), null, this);
+            this.cameras.main.stopFollow();
+            this.cameras.main.startFollow(this.ghost.asset);
+            this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        }
     }
 
     public revive(): void {
         this.player.revive();
         this.ghost.revive(this.player.player.x, this.player.player.y);
+        this.cameras.main.stopFollow();
+        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        this.invincible = true;
+        this.time.delayedCall(1000, () => this.invincible = false, null, this);
+    }
+
+    public reviveTeleport(): void {
+        this.ghost.reviveTeleport();
+        this.player.reviveTeleport(this.ghost.asset.x, this.ghost.asset.y);
+        this.cameras.main.stopFollow();
+        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        this.invincible = true;
+        this.time.delayedCall(1000, () => this.invincible = false, null, this);
     }
 }

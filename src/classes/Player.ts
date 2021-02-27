@@ -158,4 +158,10 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = true;
         this._player.setActive(true).setVisible(true);
     }
+
+    public reviveTeleport(x, y): void {
+        this.player.setActive(true).setVisible(true);
+        this._player.setPosition(x, y);
+        this._isAlive = true;
+    }
 }

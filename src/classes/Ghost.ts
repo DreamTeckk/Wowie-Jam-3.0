@@ -79,4 +79,9 @@ export default class Ghost extends Phaser.GameObjects.Container {
         this._asset.setPosition(x, y);
         this._isAlive = true;
     }
+
+    public reviveTeleport(): void {
+        this._isAlive = true;
+        this._asset.setActive(false).setVisible(false);
+    }
 }
