@@ -5,10 +5,9 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     private _isActivated: boolean;
 
-    private _assetLauncher: Phaser.Physics.Arcade.Sprite;
+    private _assetLauncher: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
     private _fireballs: Phaser.Physics.Arcade.Sprite[];
-
     // N E W S
     private _direction: string;
 
@@ -30,6 +29,10 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     set isActivated(value: boolean) {
         this._isActivated = value;
+    }
+
+    get assetLauncher():  Phaser.Types.Physics.Arcade.SpriteWithDynamicBody{
+        return this._assetLauncher;
     }
 
     get fireballs(): Phaser.Physics.Arcade.Sprite[] {
@@ -64,8 +67,12 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     }
 
     public update(): void {
-        //
+        
     }
 
+    public changeState(){
+        
+        this._isActivated = !this._isActivated
+    }
 
 }

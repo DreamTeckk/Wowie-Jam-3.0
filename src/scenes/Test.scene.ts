@@ -40,6 +40,9 @@ export default class TestScene extends Scene {
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
+    
+    /** Activated */
+    private fireballLauncherActivated: FireballsLauncher[] = []
 
     constructor() {
         super(config)
@@ -135,6 +138,8 @@ export default class TestScene extends Scene {
         this.fireballLaucherTiles.forEach(fl => {
             const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.name);
             l.create();
+            this.physics.add.staticGroup(l)
+            this.physics.add.collider(l, this.player.player)
             this.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
             this.physics.add.collider(this.player.player, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
             this.fireballLauchers.push(l);
@@ -164,6 +169,7 @@ export default class TestScene extends Scene {
         });
 
         this.physics.add.collider(this.ghost.asset, this.walls);
+    
         this.ghost.events.on('interact', (object) => {
             //
         })
@@ -183,7 +189,7 @@ export default class TestScene extends Scene {
                     // Deactivate the lever after x milliseconds
                     this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
                     this.initDoorLogic(lever);
-                    this.initFireBallLauncherLogic(lever);
+                    this.initFireBallLauncherLogic(lever)
                     this.revive();
                 }
             });
