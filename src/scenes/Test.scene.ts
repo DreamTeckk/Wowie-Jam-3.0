@@ -5,12 +5,10 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 }
 
 import { Scene } from 'phaser';
-import Activator from '../classes/Lever';
+import Lever from '../classes/Lever';
 import Player from '../classes/Player';
 import Ghost from '../classes/Ghost'
-import UsableObject from '../classes/UsableObject'
 import Door from '../classes/Door';
-import Lever from '../classes/Lever';
 
 
 export default class TestScene extends Scene {
@@ -22,7 +20,7 @@ export default class TestScene extends Scene {
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
     private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
     private doors: Door[] = [];
-    private levers: Lever[] = [];
+    private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
 
     constructor() {
         super(config)
@@ -50,22 +48,19 @@ export default class TestScene extends Scene {
         // Display Map Layers 
         map.createLayer('Ground', tiles, 0, 0);
         this.walls = map.createLayer('Wall', tiles, 0, 0);
-        map.createLayer('Door', tiles, 0, 0);
         this.doorTiles = map.getObjectLayer('Door').objects;
         this.leverTiles = map.getObjectLayer('Lever').objects;
 
         // Display levers
         this.leverTiles.forEach(lever => {
-            const l = new Activator(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this);
-            l.create();
-            this.levers.push(l);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this);
+            this.levers.push(this.physics.add.staticGroup(l));
         });
 
         // Display doors 
         this.doorTiles.forEach(door => {
             const d = new Door(door.x + door.width / 2, door.y - door.height / 2, parseInt(door.name), this);
             d.create();
-            this.levers.filter(l => l.id === d.id)[0].event.on('activate', () => !d.opened ? d.open() : null)
             this.doors.push(d);
         });
 
@@ -75,7 +70,6 @@ export default class TestScene extends Scene {
 
         // Register the Ghost
         this.ghost = new Ghost(200, 200, this/*, this.gameObjects*/);
-        this.ghost.create();
 
         // Set wall layer as collinding layer
         map.setCollisionBetween(1, 999, true, true, this.walls);
@@ -83,23 +77,46 @@ export default class TestScene extends Scene {
         // Create collisions between Player and Walls
         this.physics.add.collider(this.player.player, this.walls);
 
+        // Create collisions between Player and Doors
+        let doorColliders: Phaser.Physics.Arcade.Collider[] = [];
+        this.doors.forEach(door => {
+            this.physics.add.staticGroup(door);
+            doorColliders.push(this.physics.add.collider(this.player.player, door))
+        })
 
-        //const arr = [this.physics.add.staticGroup(new UsableObject(300, 300, this)), this.physics.add.staticGroup(new UsableObject(500, 500, this))]
-        //this.gameObjects = this.physics.add.staticGroup(new UsableObject(300, 300, this))
-
-        this.levers.map(l => this.physics.add.staticGroup(l)).forEach(e => {
-            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Activator)));
+        // Bind lever action to open linked door
+        this.levers.forEach(e => {
+            // Check if player is on a lever action's zone 
+            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Lever)));
+            // Register the event emited whene the ghost interact with a lever
             this.ghost.events.on('interact', (object) => {
-                if (object === (e.children.entries[0] as Activator))
-                    (e.children.entries[0] as Activator).actionGhost();
+                const lever = e.children.entries[0] as Lever;
+                if (object === lever) {
+                    lever.actionGhost();
+                    // Get all linked doors
+                    this.doors.filter(door => door.id === lever.id)
+                        .forEach(linkedDoor => {
+                            if (!linkedDoor.opened) {
+                                // Open all the linked doors
+                                linkedDoor.open();
 
+                                // Remove the door collider
+                                doorColliders = doorColliders.filter(dc => {
+                                    if ((dc.object2 as Door).id === linkedDoor.id) {
+                                        this.physics.world.removeCollider(dc)
+                                    }
+                                    return dc;
+                                })
+                                // After delay we close the door and reaply the physics.
+                                this.time.delayedCall(10000, () => {
+                                    linkedDoor.close();
+                                    doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
+                                });
+                            }
+                        })
+                }
             });
         })
-
-        this.ghost.events.on('interact', (object) => {
-            //
-        })
-        // this.physics.add.overlap(this.ghost.asset, this.gameObjects, (object) => this.ghost.objectAction(object));
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 

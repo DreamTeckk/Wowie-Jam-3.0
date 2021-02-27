@@ -1,8 +1,8 @@
-import { GameObjects, Scene } from 'phaser';
+import { Scene } from 'phaser';
 
 export default class Door extends Phaser.GameObjects.Container {
 
-    private sprite: GameObjects.Rectangle;
+    private _sprite: Phaser.GameObjects.Rectangle;
     private _opened: boolean;
     private _id: number;
 
@@ -28,9 +28,13 @@ export default class Door extends Phaser.GameObjects.Container {
         this._id = newId;
     }
 
+    get sprite(): Phaser.GameObjects.Rectangle {
+        return this._sprite;
+    }
+
     public create(): void {
-        this.sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000).setOrigin(0.5, 0.5);
-        this.add(this.sprite)
+        this._sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000).setOrigin(0.5, 0.5);
+        this.add(this._sprite)
         this.setSize(32, 32);
         this.setInteractive();
         this.scene.add.existing(this);

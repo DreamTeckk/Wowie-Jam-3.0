@@ -1,10 +1,9 @@
 import { GameObjects, Scene } from 'phaser';
 
-export default class Activator extends Phaser.GameObjects.Container {
+export default class Lever extends Phaser.GameObjects.Container {
 
     private sprite: GameObjects.Rectangle;
     private _id: number;
-    private _events: Phaser.Events.EventEmitter = new Phaser.Events.EventEmitter();
     private _xPos: number;
     private _yPos: number;
     private _isActivated: boolean;
@@ -16,10 +15,6 @@ export default class Activator extends Phaser.GameObjects.Container {
         this._isActivated = true;
         this._xPos = x;
         this._yPos = y;
-    }
-
-    get event(): Phaser.Events.EventEmitter {
-        return this._events;
     }
 
     get id(): number {
@@ -36,9 +31,6 @@ export default class Activator extends Phaser.GameObjects.Container {
         this.setSize(32, 32);
         this.setInteractive();
         this.scene.add.existing(this);
-        this.on(Phaser.Input.Events.POINTER_DOWN, () => {
-            this._events.emit('activate');
-        });
     }
 
     public update(): void {
