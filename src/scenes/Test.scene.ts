@@ -68,7 +68,7 @@ export default class TestScene extends Scene {
 
         // Display doors 
         this.doorTiles.forEach(door => {
-            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, parseInt(door.name), this);
+            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, door.name, this);
             d.create();
             this.doors.push(d);
         });
@@ -141,7 +141,17 @@ export default class TestScene extends Scene {
             this.ghost.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-                    lever.actionGhost();
+                    console.log(lever.id);
+
+                    // Activate the lever
+                    lever.isActivated = true;
+                    // Deactivate the lever after x milliseconds
+                    this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+
+                    // ?????
+                    //lever.actionGhost();
+                    // ?????
+
                     this.initDoorLogic(lever);
                     this.revive();
                 }
@@ -161,15 +171,19 @@ export default class TestScene extends Scene {
     }
 
     private initDoorLogic(lever: Lever): void {
-        this.doors.filter(door => door.id === lever.id)
+        this.doors.filter(door => door.activationPatern.includes(lever.id))
             .forEach(linkedDoor => {
-                if (!linkedDoor.opened) {
+                // Get all levers requires to open the door.
+                const requiredLever = this.levers.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id));
+                // Get the numbers of these levers that are activated
+                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                if (!linkedDoor.opened && requiredLever.length === activatedLeversLength) {
                     // Open all the linked doors
                     linkedDoor.open();
 
                     // Remove the door collider
                     this.doorColliders = this.doorColliders.filter(dc => {
-                        if ((dc.object2 as Door).id === linkedDoor.id) {
+                        if ((dc.object2 as Door).activationPatern === linkedDoor.activationPatern) {
                             this.physics.world.removeCollider(dc)
                         }
                         return dc;
@@ -185,7 +199,7 @@ export default class TestScene extends Scene {
     public death(): void {
         this.player.death();
         this.ghost.death(this.player.player.x, this.player.player.y);
-        this.time.delayedCall(3000, () => this.revive(), null, this);
+        this.time.delayedCall(2000, () => this.revive(), null, this);
         this.cameras.main.stopFollow();
         this.cameras.main.startFollow(this.ghost.asset);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)

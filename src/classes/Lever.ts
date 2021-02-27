@@ -8,6 +8,7 @@ export default class Lever extends Phaser.GameObjects.Container {
     private _yPos: number;
     private _isActivated: boolean;
     private _activator: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private _activationTime: number;
 
     constructor(x: number, y: number, id: number, scene: Scene) {
         super(scene, x, y)
@@ -15,6 +16,8 @@ export default class Lever extends Phaser.GameObjects.Container {
         this._isActivated = true;
         this._xPos = x;
         this._yPos = y;
+        this._isActivated = false;
+        this._activationTime = 10000;
     }
 
     get id(): number {
@@ -23,6 +26,18 @@ export default class Lever extends Phaser.GameObjects.Container {
 
     set id(newId: number) {
         this._id = newId;
+    }
+
+    get isActivated(): boolean {
+        return this._isActivated;
+    }
+
+    set isActivated(value: boolean) {
+        this._isActivated = value;
+    }
+
+    get activationTime(): number {
+        return this._activationTime;
     }
 
     public create(): void {
