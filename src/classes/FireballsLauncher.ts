@@ -51,6 +51,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     public create(): void {
         this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000));
         this.scene.add.existing(this);
+        this.setSize(32, 32);
         this.scene.time.addEvent({
             delay: 500,
             callback: () => {

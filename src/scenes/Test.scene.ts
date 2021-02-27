@@ -11,7 +11,6 @@ import Spike from '../classes/Spike'
 import Ghost from '../classes/Ghost'
 import Door from '../classes/Door';
 import FireballsLauncher from '../classes/FireballsLauncher'
-import { Direction } from '../enums/direction';
 import Teleporter from '../classes/Teleporter';
 
 export default class TestScene extends Scene {
@@ -169,10 +168,6 @@ export default class TestScene extends Scene {
         });
 
         this.physics.add.collider(this.ghost.asset, this.walls);
-
-        this.ghost.events.on('interact', (object) => {
-            //
-        })
 
         // Bind lever action to open linked door
         this.levers.forEach(e => {
