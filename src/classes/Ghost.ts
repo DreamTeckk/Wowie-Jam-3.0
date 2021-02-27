@@ -56,7 +56,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
             this._asset.setVelocityX(0);
         }
 
-        if (this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
+        if (this.actionPressed === true && this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
             this.actionPressed = false;
 
         /*this._itemsInRange = this.scene.physics.overlapRect(this._asset.x,this._asset.y, this._asset.width, this._asset.height)
