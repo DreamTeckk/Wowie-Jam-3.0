@@ -1,13 +1,17 @@
 import { Scene } from 'phaser';
 
-export default class Door extends Phaser.GameObjects.Container {
+export default class Spike extends Phaser.GameObjects.Container {
 
-    private _sprite: Phaser.GameObjects.Rectangle;
+    private sprite;
+    private xPos: number;
+    private yPos: number;
     private _opened: boolean;
     private _id: number;
 
     constructor(x: number, y: number, id: number, scene: Scene) {
         super(scene, x, y)
+        this.xPos = x;
+        this.yPos = y;
         this._id = id;
         this._opened = false;
     }
@@ -28,15 +32,13 @@ export default class Door extends Phaser.GameObjects.Container {
         this._id = newId;
     }
 
-    get sprite(): Phaser.GameObjects.Rectangle {
-        return this._sprite;
-    }
-
     public create(): void {
-        this._sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xdede21).setOrigin(0.5, 0.5);
-        this.add(this._sprite)
+        this.sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000).setOrigin(0.5, 0.5);
+        //this.sprite = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
+        this.add(this.sprite)
         this.setSize(32, 32);
         this.setInteractive();
+
         this.scene.add.existing(this);
     }
 
@@ -51,6 +53,6 @@ export default class Door extends Phaser.GameObjects.Container {
 
     public close(): void {
         this._opened = false;
-        this.sprite.setFillStyle(0xdede21);
+        this.sprite.setFillStyle(0xff0000);
     }
 }

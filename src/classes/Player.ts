@@ -1,4 +1,5 @@
-import { Scene } from 'phaser';
+import { Vector } from 'matter';
+import { GameObjects, Physics, Scene } from 'phaser';
 
 
 /**
@@ -9,23 +10,25 @@ import { Scene } from 'phaser';
 export default class Player extends Phaser.GameObjects.Container {
 
     private _isAlive: boolean;
-    private _cursor: Phaser.Types.Input.Keyboard.CursorKeys;
-    private _xPos: number;
-    private _yPos: number;
-    private _player: Phaser.Physics.Arcade.Sprite;
+    private cursor: Phaser.Types.Input.Keyboard.CursorKeys;
+    private xPos: number;
+    private yPos: number;
+    private _player: Physics.Arcade.Sprite;
 
-    private _playerSpeed: number;
-    private _idle;
+    private playerSpeed: number;
+    private idle;
+
+    private playerVelocity: Vector;
 
 
     constructor(x: number, y: number, scene: Scene) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
         this._isAlive = true;
-        this._playerSpeed = 300;
-        this._idle = true;
-        this._xPos = x;
-        this._yPos = y;
+        this.playerSpeed = 300;
+        this.idle = true;
+        this.xPos = x;
+        this.yPos = y;
     }
 
     // Is Alive getter and setter
@@ -45,12 +48,12 @@ export default class Player extends Phaser.GameObjects.Container {
     public create(): void {
 
         this.setSize(32, 32);
-        this._player = this.scene.physics.add.sprite(this._xPos, this._yPos, 'player');
+        this._player = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
         this.add(this._player);
 
-        this._cursor = this.scene.input.keyboard.createCursorKeys();
+        this._player.setMaxVelocity(this.playerSpeed);
 
-        this._player.setMaxVelocity(this._playerSpeed, this._playerSpeed);
+        this.cursor = this.scene.input.keyboard.createCursorKeys();
 
         this.scene.anims.create({
             key: 'left',
@@ -82,47 +85,77 @@ export default class Player extends Phaser.GameObjects.Container {
     }
 
     public update(): void {
-        if (this._cursor.left.isDown) {
-            this._idle = false;
-            this._player.setVelocityX(-this._playerSpeed);
+        if (this._isAlive) {
+            if (this.cursor.left.isDown) {
+                this.idle = false;
+                this._player.setVelocityX(-this.playerSpeed);
 
-            this._player.anims.play('left');
-        }
-        else if (this._cursor.right.isDown) {
-            this._idle = false;
+                this._player.anims.play('left');
+            }
+            else if (this.cursor.right.isDown) {
+                this.idle = false;
 
-            this._player.setVelocityX(this._playerSpeed);
+                this._player.setVelocityX(this.playerSpeed);
 
-            this._player.anims.play('right');
-        }
-        else {
-            this._idle = true;
-            this._player.setVelocityX(0);
-        }
+                this._player.anims.play('right');
+            }
+            else {
+                this.idle = true;
+                this._player.setVelocityX(0);
+            }
 
-        if (this._cursor.up.isDown) {
-            this._player.setVelocityY(-this._playerSpeed);
+            if (this.cursor.up.isDown) {
+                this._player.setVelocityY(-this.playerSpeed);
 
-            this._player.anims.play('right');
-        }
-        else if (this._cursor.down.isDown) {
-            this._player.setVelocityY(this._playerSpeed);
+                this._player.anims.play('right');
+            }
+            else if (this.cursor.down.isDown) {
+                this._player.setVelocityY(this.playerSpeed);
 
-            this._player.anims.play('right');
-        }
-        else {
-            this._player.setVelocityY(0);
+                this._player.anims.play('right');
+            }
+            else {
+                this._player.setVelocityY(0);
 
-            if (this._idle == true)
-                this._player.anims.play('idle');
-        }
+                if (this.idle == true)
+                    this._player.anims.play('idle');
+            }
 
-        if (this._cursor.space.isDown) {
+            if (this.cursor.space.isDown) {
 
+            }
         }
     }
 
-    initCollider(object2): void {
-        this.scene.physics.collide(this, object2);
+    public death(): void {
+        if (this._isAlive) {
+            console.log("t mor lol")
+            this._isAlive = false;
+
+            if (this.player.body.velocity.x > 0) {
+                console.log("x > 0");
+                this._player.setPosition(this.player.x - 5, this.player.y);
+            }
+            if (this.player.body.velocity.y > 0) {
+                console.log("y > 0");
+                this._player.setPosition(this.player.x, this.player.y - 5);
+            }
+            if (this.player.body.velocity.x < 0) {
+                console.log("x < 0");
+                this._player.setPosition(this.player.x + 5, this.player.y);
+            }
+            if (this.player.body.velocity.y < 0) {
+                console.log("y < 0");
+                this._player.setPosition(this.player.x, this.player.y + 5);
+            }
+            this._player.setVelocityX(0);
+            this._player.setVelocityY(0);
+            this._player.setActive(false).setVisible(false);
+        }
+    }
+
+    public revive(): void {
+        this._isAlive = true;
+        this._player.setActive(true).setVisible(true);
     }
 }

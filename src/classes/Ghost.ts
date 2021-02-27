@@ -1,5 +1,4 @@
 import { Scene } from 'phaser';
-import UsableObject from './UsableObject';
 
 export default class Ghost extends Phaser.GameObjects.Container {
 
@@ -15,7 +14,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
     constructor(x: number, y: number, scene: Scene) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._speed = 150;
+        this._speed = 300;
         this._isAlive = true;
         this._cursors = this.scene.input.keyboard.createCursorKeys();
         this._asset = this.scene.physics.add.image(x, y, 'ghost');
@@ -35,13 +34,14 @@ export default class Ghost extends Phaser.GameObjects.Container {
     public create(): void {
         this.add(this._asset);
         this.scene.add.existing(this);
+        this.asset.setActive(false).setVisible(false);
     }
 
     public update(): void {
         //this._debug.text = 'Velocity : '+ this._asset.body.velocity.length() + ' | Speed : ' + this._asset.body.speed + ' | Acceleration : ' + this._asset.body.acceleration.length() 
         if (this._cursors.up.isDown) {
             this._asset.setVelocityY(-this._speed);
-            this._itemsInRange
+            this._itemsInRange;
         } else if (this._cursors.down.isDown) {
             this._asset.setVelocityY(this._speed);
         } else {
@@ -56,14 +56,27 @@ export default class Ghost extends Phaser.GameObjects.Container {
             this._asset.setVelocityX(0);
         }
 
-        if (this.actionPressed === true && this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
-            this.actionPressed = false;
+        if (this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
+            if (this.actionPressed === true)
+                this.actionPressed = false;
     }
 
     public objectAction(object): void {
-        if (this._cursors.space.isDown && !this.actionPressed) {
+        if (this._cursors.space.isDown && !this.actionPressed && !this._isAlive) {
             this.actionPressed = true;
             this._events.emit('interact', object)
         }
+    }
+
+    public death(x, y): void {
+        this.asset.setActive(true).setVisible(true);
+        this._asset.setPosition(x, y);
+        this._isAlive = false;
+    }
+
+    public revive(x, y): void {
+        this.asset.setActive(false).setVisible(false);
+        this._asset.setPosition(x, y);
+        this._isAlive = true;
     }
 }

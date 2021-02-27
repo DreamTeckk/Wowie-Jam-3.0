@@ -7,6 +7,7 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 import { Scene } from 'phaser';
 import Lever from '../classes/Lever';
 import Player from '../classes/Player';
+import Spike from '../classes/Spike'
 import Ghost from '../classes/Ghost'
 import Door from '../classes/Door';
 
@@ -15,6 +16,8 @@ export default class TestScene extends Scene {
 
     private player: Player;
     private lever: Lever;
+    private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
+    private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
     private ghost: Ghost;
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -67,18 +70,38 @@ export default class TestScene extends Scene {
             this.doors.push(d);
         });
 
+        map.setCollisionBetween(1, 999, true, true, this.walls);
+
         // Register the Player
         this.player = new Player(100, 200, this);
         this.player.create();
 
         // Register the Ghost
-        this.ghost = new Ghost(200, 200, this/*, this.gameObjects*/);
+        this.ghost = new Ghost(100, 200, this);
+        this.ghost.create();
 
         // Set wall layer as collinding layer
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Create collisions between Player and Walls
         this.physics.add.collider(this.player.player, this.walls);
+        this.physics.add.collider(this.ghost.asset, this.walls);
+
+        //Create spikes objects
+        this.spikeTiles = map.getObjectLayer('Spikes').objects;
+
+        //Add spikes into an array of Group
+        this.spikeTiles.forEach(spike => {
+            const d = new Spike(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), this);
+            d.create();
+            this.spikes.push(this.physics.add.staticGroup(d));
+        });
+
+        console.log(this.spikes)
+
+        this.spikes.forEach(e => {
+            this.physics.add.overlap(this.player.player, e, () => this.death());
+        });
 
         // Create collisions between Player and Doors
         this.doors.forEach(door => {
@@ -96,7 +119,6 @@ export default class TestScene extends Scene {
             this.ghost.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-
                     lever.actionGhost();
                     this.initDoorLogic(lever);
 
@@ -104,6 +126,7 @@ export default class TestScene extends Scene {
             });
         })
     }
+
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
      * from Request Animation Frame, or Date.now if using SetTimeout.
@@ -112,6 +135,7 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
+
         this.ghost.update()
     }
 
@@ -136,5 +160,15 @@ export default class TestScene extends Scene {
                     });
                 }
             })
+    }
+    public death(): void {
+        this.player.death();
+        this.ghost.death(this.player.player.x, this.player.player.y);
+        this.time.delayedCall(3000, () => this.revive(), null, this);
+    }
+
+    public revive(): void {
+        this.player.revive();
+        this.ghost.revive(this.player.player.x, this.player.player.y);
     }
 }
