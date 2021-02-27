@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import MenuScene from './scenes/MenuScene';
 import TestScene from './scenes/Test.scene';
 
 
@@ -15,7 +16,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         width: 1000,
         height: 600,
     },
-    scene: TestScene,
+    scene: [MenuScene, TestScene],
     physics: {
         default: 'arcade',
         arcade: {
