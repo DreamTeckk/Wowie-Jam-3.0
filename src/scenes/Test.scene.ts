@@ -10,12 +10,15 @@ import Player from '../classes/Player';
 import Spike from '../classes/Spike'
 import Ghost from '../classes/Ghost'
 import UsableObject from '../classes/UsableObject'
+import PressurePlate from '../classes/PressurePlate';
 
 
 export default class TestScene extends Scene {
 
     private player: Player;
     private lever;
+    private pressurePlateTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private pressurePlates: Phaser.Physics.Arcade.StaticGroup[] = [];
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
@@ -49,6 +52,7 @@ export default class TestScene extends Scene {
         map.createLayer('Ground', tiles, 0, 0);
         this.walls = map.createLayer('Wall', tiles, 0, 0);
         map.createLayer('Door', tiles, 0, 0);
+        //this.pressurePlateTiles = map.getObjectLayer('PressurePlate').objects;
 
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
@@ -56,7 +60,7 @@ export default class TestScene extends Scene {
         this.player = new Player(100, 200, this);
         this.player.create();
 
-        //this.cameras.main.setZoom(1,2);
+        this.cameras.main.setZoom(1.2);
         //this.cameras.main.setPosition(-this.player.x, -this.player.y);
 
         //this.cameras.main.setBounds(0, 0, 1024, 640);
@@ -76,6 +80,12 @@ export default class TestScene extends Scene {
         this.physics.add.collider(this.player.player, this.walls);
         this.physics.add.collider(this.ghost.asset, this.walls);
 
+        // Display levers
+        /*this.pressurePlateTiles.forEach(pp => {
+            const l = new PressurePlate(pp.x + pp.width / 2, pp.y - pp.height / 2, parseInt(pp.name), this);
+            this.pressurePlates.push(this.physics.add.staticGroup(l));
+        });*/
+
         //Create spikes objects
         this.spikeTiles = map.getObjectLayer('Spikes').objects;
 
@@ -90,11 +100,11 @@ export default class TestScene extends Scene {
 
         this.spikes.forEach(e => {
             this.physics.add.overlap(this.player.player, e, () => this.death());
-            /*this.ghost.events.on('interact', (object) => {
+            this.ghost.events.on('interact', (object) => {
                 if (object === (e.children.entries[0] as UsableObject))
                     (e.children.entries[0] as UsableObject).actionGhost();
 
-            });*/
+            });
         })
 
 
