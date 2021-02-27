@@ -16,6 +16,7 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     public preload(): void {
+        this.load.image('backgrondMainMenu', 'assets/images/backgrondMainMenu.png');
         /**
          *  The preload() method is used to load all the assets before the game starts.
          *  It's used to prevent the game to start with missing or unload images, spritesheets, etc.. 
@@ -23,6 +24,7 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     public create(): void {
+        this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
         let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()
         playButton.once('pointerdown', () => {
             //console.log(this)
