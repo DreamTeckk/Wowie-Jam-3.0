@@ -7,26 +7,24 @@ const config: Phaser.Types.Scenes.SettingsConfig = {
 import { Scene } from 'phaser';
 import Activator from '../classes/Lever';
 import Player from '../classes/Player';
+import Spike from '../classes/Spike';
 
 
 export default class TestScene extends Scene {
 
     private player;
-    private _lever;
 
+    private spikeGroup;
 
-    private _player2;
+    private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
+    //private spikes: any[] = [];
 
-
-    private _walls;
+    private walls;
 
     constructor() {
         super(config)
     }
 
-    get walls(): Phaser.Tilemaps.TilemapLayer {
-        return this._walls;
-    }
 
     public preload(): void {
         //TileMap
@@ -46,28 +44,31 @@ export default class TestScene extends Scene {
         const tiles = map.addTilesetImage('tileset_test', 'tiles');
 
         map.createLayer('Ground', tiles, 0, 0);
-        this._walls = map.createLayer('Wall', tiles, 0, 0);
+        this.walls = map.createLayer('Wall', tiles, 0, 0);
         map.createLayer('Door', tiles, 0, 0);
 
-        map.setCollisionBetween(1, 999, true, true, this._walls);
+        this.spikeGroup = this.physics.add.group();
+        this.spikeTiles = map.getObjectLayer('Spikes').objects;
+        this.spikeTiles.forEach(spike => {
+            const d = new Spike(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), this);
+            d.create();
+            this.spikeGroup.create(spike.x + spike.width / 2, spike.y - spike.height / 2, parseInt(spike.name), 'spike')
+            //this.spikes.push(d);
+        });
+
+        map.setCollisionBetween(1, 999, true, true, this.walls);
 
         //Player
         this.player = new Player(100, 200, this);
         this.player.create();
 
-        this._player2 = this.physics.add.sprite(100, 400, 'player');
+        //Collision entre le joueur et un mur
+        this.physics.add.collider(this.player._body, this.walls);
 
-        //console.log(this._player2);
-
-        console.log(this.player);
-
-        this.physics.add.collider(this.player._body, this._walls);
-
-
-        //Lever
-        this._lever = new Activator(400, 400, this);
-        this._lever.create();
+        //Detection d'un piege
+        this.physics.add.overlap(this.player._body, this.spikeGroup, test, null, this);
     }
+
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
      * from Request Animation Frame, or Date.now if using SetTimeout.
@@ -77,4 +78,9 @@ export default class TestScene extends Scene {
     public update(time: number, delta: number): void {
         this.player.update();
     }
+}
+
+function test(player, spike) {
+    console.log("ok");
+    return false;
 }

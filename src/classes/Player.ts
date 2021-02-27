@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { GameObjects, Scene } from 'phaser';
 
 
 /**
@@ -9,23 +9,23 @@ import { Scene } from 'phaser';
 export default class Player extends Phaser.GameObjects.Container {
 
     private _isAlive: boolean;
-    private _cursor;
-    private _xPos;
-    private _yPos;
-    private _player;
+    private cursor;
+    private xPos;
+    private yPos;
+    private player;
 
-    private _playerSpeed;
-    private _idle;
+    private playerSpeed;
+    private idle;
 
 
     constructor(x: number, y: number, scene: Scene) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
         this._isAlive = true;
-        this._playerSpeed = 300;
-        this._idle = true;
-        this._xPos = x;
-        this._yPos = y;
+        this.playerSpeed = 300;
+        this.idle = true;
+        this.xPos = x;
+        this.yPos = y;
     }
 
     // Is Alive getter and setter
@@ -45,13 +45,15 @@ export default class Player extends Phaser.GameObjects.Container {
     public create(): void {
 
         this.setSize(32, 32);
-        this._player = this.scene.physics.add.sprite(this._xPos, this._yPos, 'player');
-        this.add(this._player);
-        this.body = this._player;
+        this.player = this.scene.physics.add.sprite(this.xPos, this.yPos, 'player');
+        this.add(this.player);
+        this.body = this.player;
 
-        this._cursor = this.scene.input.keyboard.createCursorKeys();
+        this.player.body.setMaxSpeed(this.playerSpeed);
 
-        this._player.setMaxVelocity(this._playerSpeed, this._playerSpeed);
+        this.cursor = this.scene.input.keyboard.createCursorKeys();
+
+        this.player.setMaxVelocity(this.playerSpeed, this.playerSpeed);
 
         this.scene.anims.create({
             key: 'left',
@@ -83,43 +85,43 @@ export default class Player extends Phaser.GameObjects.Container {
     }
 
     public update(): void {
-        if (this._cursor.left.isDown) {
-            this._idle = false;
+        if (this.cursor.left.isDown) {
+            this.idle = false;
 
-            this._player.setVelocityX(-this._playerSpeed);
+            this.player.setVelocityX(-this.playerSpeed);
 
-            this._player.anims.play('left', this._player);
+            this.player.anims.play('left', this.player);
         }
-        else if (this._cursor.right.isDown) {
-            this._idle = false;
+        else if (this.cursor.right.isDown) {
+            this.idle = false;
 
-            this._player.setVelocityX(this._playerSpeed);
+            this.player.setVelocityX(this.playerSpeed);
 
-            this._player.anims.play('right', this._player);
-        }
-        else {
-            this._idle = true;
-            this._player.setVelocityX(0);
-        }
-
-        if (this._cursor.up.isDown) {
-            this._player.setVelocityY(-this._playerSpeed);
-
-            this._player.anims.play('right', this._player);
-        }
-        else if (this._cursor.down.isDown) {
-            this._player.setVelocityY(this._playerSpeed);
-
-            this._player.anims.play('right', this._player);
+            this.player.anims.play('right', this.player);
         }
         else {
-            this._player.setVelocityY(0);
-
-            if (this._idle == true)
-                this._player.anims.play('idle', this._player);
+            this.idle = true;
+            this.player.setVelocityX(0);
         }
 
-        if (this._cursor.space.isDown) {
+        if (this.cursor.up.isDown) {
+            this.player.setVelocityY(-this.playerSpeed);
+
+            this.player.anims.play('right', this.player);
+        }
+        else if (this.cursor.down.isDown) {
+            this.player.setVelocityY(this.playerSpeed);
+
+            this.player.anims.play('right', this.player);
+        }
+        else {
+            this.player.setVelocityY(0);
+
+            if (this.idle == true)
+                this.player.anims.play('idle', this.player);
+        }
+
+        if (this.cursor.space.isDown) {
 
         }
     }
