@@ -10,7 +10,8 @@ import Player from '../classes/Player';
 import Spike from '../classes/Spike'
 import Ghost from '../classes/Ghost'
 import Door from '../classes/Door';
-
+import FireballsLauncher from '../classes/FireballsLauncher'
+import { Direction } from '../enums/direction';
 
 export default class TestScene extends Scene {
 
@@ -19,6 +20,7 @@ export default class TestScene extends Scene {
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
+    private fireballLauncher: FireballsLauncher;
     private ghost: Ghost;
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
     private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -96,6 +98,9 @@ export default class TestScene extends Scene {
             d.create();
             this.spikes.push(this.physics.add.staticGroup(d));
         });
+        //Lever
+        //this.lever = new Activator(400, 400, this);
+        //this.lever.create();
 
         console.log(this.spikes)
 
@@ -110,6 +115,13 @@ export default class TestScene extends Scene {
         })
 
         this.physics.add.collider(this.ghost.asset, this.walls);
+        this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
+        this.fireballLauncher.create()
+        this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
+        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { console.log('you die'); fireball.destroy() })
+        this.ghost.events.on('interact', (object) => {
+            //
+        })
 
         // Bind lever action to open linked door
         this.levers.forEach(e => {
@@ -135,7 +147,6 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-
         this.ghost.update()
     }
 
