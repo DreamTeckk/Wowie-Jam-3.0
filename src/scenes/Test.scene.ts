@@ -13,59 +13,75 @@ import UsableObject from '../classes/UsableObject'
 
 export default class TestScene extends Scene {
 
-    private player;
-    private _lever;
-    private _walls;
-    private _ghost
-    private _gameObjects;
+    private player: Player;
+    private lever;
+    private walls;
+    private ghost: Ghost;
+    private gameObjects: Phaser.Physics.Arcade.StaticGroup;
 
     constructor() {
         super(config)
     }
 
-    get walls(): Phaser.Tilemaps.TilemapLayer {
-        return this._walls;
-    }
-
     public preload(): void {
-        //TileMap
+        //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset.png');
         this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/test-map.json');
 
-        //Player
+        // Load Player sprite
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
-
-        //Objects
+        // Load Activator sprite
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
-
-        //GameObject
+        // Load Ghost sprite
         this.load.image('ghost', '/assets/images/ghost.png');
-
     }
 
     public create(): void {
-        //TileMap
+        // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
         const tiles = map.addTilesetImage('tileset_test', 'tiles');
 
+        // Display Map Layers 
         map.createLayer('Ground', tiles, 0, 0);
-        this._walls = map.createLayer('Wall', tiles, 0, 0);
+        this.walls = map.createLayer('Wall', tiles, 0, 0);
         map.createLayer('Door', tiles, 0, 0);
 
-        map.setCollisionBetween(1, 999, true, true, this._walls);
-
-        //Player
+        // Register the Player
         this.player = new Player(100, 200, this);
         this.player.create();
 
-        this.physics.add.collider(this.player._body, this._walls);
+        // Register the Ghost
+        this.ghost = new Ghost(200, 200, this/*, this.gameObjects*/);
+        this.ghost.create();
+
+        // Set wall layer as collinding layer
+        map.setCollisionBetween(1, 999, true, true, this.walls);
+
+        // Create collisions between Player and Walls
+        this.physics.add.collider(this.player.player, this.walls);
 
 
         //Lever
-        this._lever = new Activator(400, 400, this);
-        this._lever.create();
-        this._gameObjects = this.physics.add.staticGroup(new UsableObject(300, 300, this))
-        this._ghost = new Ghost(400, 400, this, this._gameObjects);
+        this.lever = new Activator(400, 400, this);
+        this.lever.create();
+
+        const arr = [this.physics.add.staticGroup(new UsableObject(300, 300, this)), this.physics.add.staticGroup(new UsableObject(500, 500, this))]
+        //this.gameObjects = this.physics.add.staticGroup(new UsableObject(300, 300, this))
+
+        arr.forEach(e => {
+            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as UsableObject)));
+            this.ghost.events.on('interact', (object) => {
+                if (object === (e.children.entries[0] as UsableObject))
+                    (e.children.entries[0] as UsableObject).actionGhost();
+
+            });
+        })
+
+        this.ghost.events.on('interact', (object) => {
+            //
+        })
+        // this.physics.add.overlap(this.ghost.asset, this.gameObjects, (object) => this.ghost.objectAction(object));
+
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
@@ -75,6 +91,6 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-        this._ghost.update()
+        this.ghost.update()
     }
 }
