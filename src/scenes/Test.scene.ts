@@ -13,6 +13,7 @@ import Door from '../classes/usables/Door';
 import FireballsLauncher from '../classes/traps/FireballsLauncher'
 import Teleporter from '../classes/usables/Teleporter';
 import Fire from '../classes/traps/Fire';
+import End from '../classes/usables/End';
 
 export default class TestScene extends Scene {
 
@@ -82,8 +83,13 @@ export default class TestScene extends Scene {
         this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
         this.add.existing(this.add.rectangle(this.startTile.x, this.startTile.y, 32, 32, 0x555555));
-        this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
+        //this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
         //this.add.existing()
+
+        //Display the end
+        const end = new End(this.endTile.x + this.endTile.width / 2, this.endTile.y - this.endTile.height / 2, this);
+        end.create();
+        this.physics.add.staticGroup(end);
 
         // Display teleporters
         this.tpTiles.forEach(tp => {
@@ -172,6 +178,9 @@ export default class TestScene extends Scene {
         this.spikes.forEach(e => {
             this.physics.add.overlap(this.player.player, e, () => this.death());
         });
+
+        //Overlap end
+        this.physics.add.overlap(this.player.player, end, () => this.nextMap());
 
         // Create collisions between Player and Doors
         this.doors.forEach(door => {
@@ -350,5 +359,9 @@ export default class TestScene extends Scene {
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         this.invincible = true;
         this.time.delayedCall(1000, () => this.invincible = false, null, this);
+    }
+
+    public nextMap(): void {
+        this.scene.start('tmpScene');
     }
 }
