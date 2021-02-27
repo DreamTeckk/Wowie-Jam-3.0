@@ -20,11 +20,12 @@ export default class TestScene extends Scene {
     private lever: Lever;
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private walls;
-    private fireballLauncher: FireballsLauncher;
     private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
     private ghost: Ghost;
     private doors: Door[] = [];
+    private fireballLauchers: FireballsLauncher[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
+    private leversGhost: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
 
     /** Object Layer */
@@ -32,7 +33,9 @@ export default class TestScene extends Scene {
     private tpTiles: Phaser.Types.Tilemaps.TiledObject[];
     private startTile: Phaser.Types.Tilemaps.TiledObject;
     private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private leverGhostTiles: Phaser.Types.Tilemaps.TiledObject[];
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
+    private fireballLaucherTiles: Phaser.Types.Tilemaps.TiledObject[];
     private endTile: Phaser.Types.Tilemaps.TiledObject;
 
     /** Colliders */
@@ -69,10 +72,12 @@ export default class TestScene extends Scene {
         this.walls = map.createLayer('Walls', tiles);
         this.doorTiles = map.getObjectLayer('Doors').objects;
         this.leverTiles = map.getObjectLayer('Levers').objects;
+        this.leverGhostTiles = map.getObjectLayer('GhostLevers').objects;
         this.tpTiles = map.getObjectLayer('Teleporters').objects;
         this.startTile = map.getObjectLayer('Start').objects[0];
         this.endTile = map.getObjectLayer('End').objects[0];
         this.spikeTiles = map.getObjectLayer('SpikesObject').objects;
+        this.fireballLaucherTiles = map.getObjectLayer('Launchers').objects;
 
         this.add.existing(this.add.rectangle(this.startTile.x, this.startTile.y, 32, 32, 0x555555));
         this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
@@ -86,9 +91,16 @@ export default class TestScene extends Scene {
 
         // Display levers
         this.leverTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, false);
             l.create();
             this.levers.push(this.physics.add.staticGroup(l));
+        });
+
+        // Display ghost
+        this.leverGhostTiles.forEach(lever => {
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, true);
+            l.create();
+            this.leversGhost.push(this.physics.add.staticGroup(l));
         });
 
         // Display doors 
@@ -98,12 +110,16 @@ export default class TestScene extends Scene {
             this.doors.push(d);
         });
 
+        // Dispaly spikes
+        this.spikeTiles.forEach(spike => {
+            const d = new Spike(spike.x + spike.width / 2, spike.y + spike.height / 2, spike.width, spike.height, parseInt(spike.name), this);
+            d.create();
+            this.spikes.push(this.physics.add.staticGroup(d));
+        });
+
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
-        console.log(this.startTile.x, this.startTile.y);
-
-        //this.player = new Player(0, 0, this);
         this.player = new Player(this.startTile.x, this.startTile.y, this);
         this.player.create();
 
@@ -115,6 +131,14 @@ export default class TestScene extends Scene {
         this.cameras.main.startFollow(this.player.player);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
 
+        // Display lauchers 
+        this.fireballLaucherTiles.forEach(fl => {
+            const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.name);
+            l.create();
+            this.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
+            this.physics.add.collider(this.player.player, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+            this.fireballLauchers.push(l);
+        });
 
         // Register the Ghost
         this.ghost = new Ghost(this.player.x, this.player.y, this);
@@ -127,12 +151,6 @@ export default class TestScene extends Scene {
         this.physics.add.collider(this.player.player, this.walls);
         this.physics.add.collider(this.ghost.asset, this.walls);
 
-        //Add spikes into an array of Group
-        this.spikeTiles.forEach(spike => {
-            const d = new Spike(spike.x + spike.width / 2, spike.y + spike.height / 2, spike.width, spike.height, parseInt(spike.name), this);
-            d.create();
-            this.spikes.push(this.physics.add.staticGroup(d));
-        });
 
         //Overlap spikes
         this.spikes.forEach(e => {
@@ -143,13 +161,9 @@ export default class TestScene extends Scene {
         this.doors.forEach(door => {
             this.physics.add.staticGroup(door);
             this.doorColliders.push(this.physics.add.collider(this.player.player, door))
-        })
+        });
 
         this.physics.add.collider(this.ghost.asset, this.walls);
-        //this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
-        //this.fireballLauncher.create()
-        //this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
-        //this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
         this.ghost.events.on('interact', (object) => {
             //
         })
@@ -168,12 +182,8 @@ export default class TestScene extends Scene {
                     lever.isActivated = true;
                     // Deactivate the lever after x milliseconds
                     this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
-
-                    // ?????
-                    //lever.actionGhost();
-                    // ?????
-
                     this.initDoorLogic(lever);
+                    this.initFireBallLauncherLogic(lever);
                     this.revive();
                 }
             });
@@ -229,10 +239,30 @@ export default class TestScene extends Scene {
                 }
             })
     }
+
+    private initFireBallLauncherLogic(lever: Lever): void {
+        this.fireballLauchers.filter(fl => fl.activationPatern.includes(lever.id.toString()))
+            .forEach(linkedFl => {
+                // Get all levers requires to switch the launcher.
+                const requiredLever = this.levers.filter(l => linkedFl.activationPatern.includes((l.children.entries[0] as Lever).id.toString()));
+                // Get the numbers of these levers that are activated
+                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                if (requiredLever.length === activatedLeversLength) {
+                    // Activate all the launcher
+                    linkedFl.isActivated = !linkedFl.isActivated;
+
+                    // After delay we switch back the launchers
+                    this.time.delayedCall(2000, () => {
+                        linkedFl.isActivated = !linkedFl.isActivated;
+                    });
+                }
+            })
+    }
+
     public death(): void {
         if (!this.invincible) {
             this.invincible = true;
-            this.time.delayedCall(4000, () => this.invincible = false, null, this);
+            this.time.delayedCall(3500, () => this.invincible = false, null, this);
             this.player.death();
             this.ghost.death(this.player.player.x, this.player.player.y);
             this.time.delayedCall(3000, () => this.revive(), null, this);

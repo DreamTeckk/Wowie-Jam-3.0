@@ -10,18 +10,18 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     private _fireballs: Phaser.Physics.Arcade.Sprite[];
 
     // N E W S
-    private _direction
+    private _direction: string;
 
-    private _walls
+    private _activationPatern: string[];
 
-    constructor(x: number, y: number, scene: Scene, walls, direction: string) {
+    constructor(x: number, y: number, scene: Scene, objectName: string) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._isActivated = true;
+        this._activationPatern = objectName.split('-');
         this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher')
-        this._walls = walls
         this._fireballs = []
-        this._direction = direction
+        this._isActivated = this._activationPatern[this._activationPatern.length - 1] === 'T' ? true : false;
+        this._direction = this._activationPatern[this._activationPatern.length - 2];
     }
 
     get isActivated(): boolean {
@@ -36,20 +36,28 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         return this._fireballs
     }
 
+    get activationPatern(): string[] {
+        return this._activationPatern;
+    }
+
     public create(): void {
+        this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000));
+        this.scene.add.existing(this);
         this.scene.time.addEvent({
             delay: 1000,
             callback: () => {
-                const fireball = this.scene.physics.add.sprite(this._assetLauncher.x, this._assetLauncher.y, 'fireball')
-                if (this._direction === Direction.SOUTH)
-                    fireball.setVelocityY(300);
-                if (this._direction === Direction.NORTH)
-                    fireball.setVelocityY(-300);
-                if (this._direction === Direction.WEST)
-                    fireball.setVelocityX(-300);
-                if (this._direction === Direction.EAST)
-                    fireball.setVelocityX(300);
-                this._fireballs.push(fireball)
+                if (this._isActivated) {
+                    const fireball = this.scene.physics.add.sprite(this._assetLauncher.x, this._assetLauncher.y, 'fireball')
+                    if (this._direction === Direction.SOUTH)
+                        fireball.setVelocityY(300);
+                    if (this._direction === Direction.NORTH)
+                        fireball.setVelocityY(-300);
+                    if (this._direction === Direction.WEST)
+                        fireball.setVelocityX(-300);
+                    if (this._direction === Direction.EAST)
+                        fireball.setVelocityX(300);
+                    this._fireballs.push(fireball)
+                }
             },
             loop: true
         });
