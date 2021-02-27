@@ -5,21 +5,20 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     private _isActivated: boolean;
 
-    private _assetLauncher: Phaser.Physics.Arcade.Sprite;
+    private _assetLauncher: Phaser.GameObjects.Rectangle;
 
     private _fireballs: Phaser.Physics.Arcade.Sprite[];
-
     // N E W S
     private _direction
 
-    private _walls
+    private _id;
 
-    constructor(x: number, y: number, scene: Scene, walls, direction: string) {
+    constructor(x: number, y: number, scene: Scene, direction: string, id: integer, isActivated: boolean) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._isActivated = true;
-        this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher')
-        this._walls = walls
+        this._id = id
+        this._isActivated = isActivated;
+        //this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher')
         this._fireballs = []
         this._direction = direction
     }
@@ -32,15 +31,29 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         this._isActivated = value;
     }
 
+    get id(): number {
+        return this._id;
+    }
+
+    get assetLauncher():  Phaser.GameObjects.Rectangle{
+        return this._assetLauncher;
+    }
+
     get fireballs(): Phaser.Physics.Arcade.Sprite[] {
         return this._fireballs
     }
 
     public create(): void {
+        this._assetLauncher = this.scene.add.rectangle(0, 0, 32, 32, 0xffa500).setOrigin(0.5, 0.5);
+        this.add(this._assetLauncher)
+        this.setSize(32, 32);
+        this.setInteractive();
+        this.scene.add.existing(this);
         this.scene.time.addEvent({
             delay: 200,
             callback: () => {
-                const fireball = this.scene.physics.add.sprite(this._assetLauncher.x, this._assetLauncher.y, 'fireball')
+                if(this._isActivated){
+                const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball')
                 if (this._direction === Direction.SOUTH)
                     fireball.setVelocityY(300);
                 if (this._direction === Direction.NORTH)
@@ -50,14 +63,17 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
                 if (this._direction === Direction.EAST)
                     fireball.setVelocityX(300);
                 this._fireballs.push(fireball)
+                }
             },
             loop: true
         });
     }
 
     public update(): void {
-        //
+        
     }
 
-
+    public changeState(){
+        this._isActivated = !this._isActivated
+    }
 }

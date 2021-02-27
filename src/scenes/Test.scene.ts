@@ -20,7 +20,7 @@ export default class TestScene extends Scene {
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
     private walls;
-    private fireballLauncher: FireballsLauncher;
+    private fireballLaunchers: FireballsLauncher[] = []
     private ghost: Ghost;
     private doorTiles: Phaser.Types.Tilemaps.TiledObject[];
     private leverTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -125,10 +125,18 @@ export default class TestScene extends Scene {
         })
 
         this.physics.add.collider(this.ghost.asset, this.walls);
-        this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
-        this.fireballLauncher.create()
-        this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
-        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+
+        //Create fireball launchers
+        let fireballLauncher = new FireballsLauncher(250, 150, this, Direction.EAST, 1, true)
+        fireballLauncher.create()
+        this.fireballLaunchers.push(fireballLauncher)
+        this.fireballLaunchers.forEach(fireballLauncher => {
+            this.physics.add.staticGroup(fireballLauncher)
+            this.physics.add.collider(fireballLauncher, this.player.player)
+            this.physics.add.collider(fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
+            this.physics.add.collider(this.player.player, fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+        })
+    
         this.ghost.events.on('interact', (object) => {
             //
         })
@@ -158,6 +166,14 @@ export default class TestScene extends Scene {
     public update(time: number, delta: number): void {
         this.player.update();
         this.ghost.update()
+    }
+
+    private initLauncherLogic(lever: Lever): void {
+        this.fireballLaunchers.filter(launcher => launcher.id === lever.id)
+            .forEach(linkedLauncher => {
+                linkedLauncher.changeState();
+
+            })
     }
 
     private initDoorLogic(lever: Lever): void {
