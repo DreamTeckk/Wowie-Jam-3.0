@@ -40,6 +40,7 @@ export default class TestScene extends Scene {
     }
 
     public create(): void {
+
         // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
         const tiles = map.addTilesetImage('tileset_test', 'tiles');
@@ -54,6 +55,15 @@ export default class TestScene extends Scene {
         // Register the Player
         this.player = new Player(100, 200, this);
         this.player.create();
+
+        //this.cameras.main.setZoom(1,2);
+        //this.cameras.main.setPosition(-this.player.x, -this.player.y);
+
+        //this.cameras.main.setBounds(0, 0, 1024, 640);
+
+        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
+
 
         // Register the Ghost
         this.ghost = new Ghost(100, 200, this/*, this.gameObjects*/);
@@ -79,7 +89,7 @@ export default class TestScene extends Scene {
         console.log(this.spikes)
 
         this.spikes.forEach(e => {
-            this.physics.add.overlap(this.player.player, e, () => this.death(e));
+            this.physics.add.overlap(this.player.player, e, () => this.death());
             /*this.ghost.events.on('interact', (object) => {
                 if (object === (e.children.entries[0] as UsableObject))
                     (e.children.entries[0] as UsableObject).actionGhost();
@@ -94,8 +104,10 @@ export default class TestScene extends Scene {
         usableObjectsArr.forEach(e => {
             this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as UsableObject)));
             this.ghost.events.on('interact', (object) => {
-                if (object === (e.children.entries[0] as UsableObject))
+                if (object === (e.children.entries[0] as UsableObject)) {
                     (e.children.entries[0] as UsableObject).actionGhost();
+                    this.revive();
+                }
             });
         })
 
@@ -114,17 +126,19 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-
-        this.ghost.update()
+        this.ghost.update();
     }
 
-    public death(e): void {
-        this.player.death((e.children.entries[0] as Spike));
+    public death(): void {
+        this.player.death();
         this.ghost.death();
-        this.time.delayedCall(3000, () => this.revive(e), null, this);
+        this.time.delayedCall(3000, () => this.revive(), null, this);
+        this.cameras.main.stopFollow();
+        this.cameras.main.startFollow(this.ghost.asset);
+        this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
     }
 
-    public revive(e): void {
+    public revive(): void {
         this.player.revive();
         this.ghost.revive(this.player.player.x, this.player.player.y);
     }
