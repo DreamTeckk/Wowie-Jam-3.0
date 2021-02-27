@@ -22,6 +22,9 @@ export default class TestScene extends Scene {
     private doors: Door[] = [];
     private levers: Phaser.Physics.Arcade.StaticGroup[] = [];
 
+    /** Colliders */
+    private doorColliders: Phaser.Physics.Arcade.Collider[] = []
+
     constructor() {
         super(config)
 
@@ -78,10 +81,9 @@ export default class TestScene extends Scene {
         this.physics.add.collider(this.player.player, this.walls);
 
         // Create collisions between Player and Doors
-        let doorColliders: Phaser.Physics.Arcade.Collider[] = [];
         this.doors.forEach(door => {
             this.physics.add.staticGroup(door);
-            doorColliders.push(this.physics.add.collider(this.player.player, door))
+            this.doorColliders.push(this.physics.add.collider(this.player.player, door))
         })
 
         this.physics.add.collider(this.ghost.asset, this.walls);
@@ -94,28 +96,10 @@ export default class TestScene extends Scene {
             this.ghost.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-                    lever.actionGhost();
-                    // Get all linked doors
-                    this.doors.filter(door => door.id === lever.id)
-                        .forEach(linkedDoor => {
-                            if (!linkedDoor.opened) {
-                                // Open all the linked doors
-                                linkedDoor.open();
 
-                                // Remove the door collider
-                                doorColliders = doorColliders.filter(dc => {
-                                    if ((dc.object2 as Door).id === linkedDoor.id) {
-                                        this.physics.world.removeCollider(dc)
-                                    }
-                                    return dc;
-                                })
-                                // After delay we close the door and reaply the collider.
-                                this.time.delayedCall(10000, () => {
-                                    linkedDoor.close();
-                                    doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
-                                });
-                            }
-                        })
+                    lever.actionGhost();
+                    this.initDoorLogic(lever);
+
                 }
             });
         })
@@ -129,5 +113,28 @@ export default class TestScene extends Scene {
     public update(time: number, delta: number): void {
         this.player.update();
         this.ghost.update()
+    }
+
+    private initDoorLogic(lever: Lever): void {
+        this.doors.filter(door => door.id === lever.id)
+            .forEach(linkedDoor => {
+                if (!linkedDoor.opened) {
+                    // Open all the linked doors
+                    linkedDoor.open();
+
+                    // Remove the door collider
+                    this.doorColliders = this.doorColliders.filter(dc => {
+                        if ((dc.object2 as Door).id === linkedDoor.id) {
+                            this.physics.world.removeCollider(dc)
+                        }
+                        return dc;
+                    })
+                    // After delay we close the door and reaply the collider.
+                    this.time.delayedCall(10000, () => {
+                        linkedDoor.close();
+                        this.doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
+                    });
+                }
+            })
     }
 }
