@@ -187,7 +187,6 @@ export default class TestScene extends Scene {
                         //this.initGhostDoorLogic(lever);
 
                         this.initFireBallLauncherLogic(lever);
-                        this.initGhostFireBallLauncherLogic(lever)
 
                         this.revive();
                     }
@@ -200,8 +199,6 @@ export default class TestScene extends Scene {
             this.player.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-                    console.log('lever', lever);
-
                     // Activate the lever
                     lever.isActivated = true;
                     // Deactivate the lever after x milliseconds
@@ -237,7 +234,6 @@ export default class TestScene extends Scene {
     }
 
     private initDoorLogic(lever: Lever): void {
-        console.log(this.doors.filter(door => door.activationPatern.includes(lever.id)))
         this.doors.filter(door => door.activationPatern.includes(lever.id))
             .forEach(linkedDoor => {
                 // Get all levers requires to open the door.
@@ -271,7 +267,10 @@ export default class TestScene extends Scene {
         this.fireballLauchers.filter(fl => fl.leverPattern.includes(lever.id))
             .forEach(linkedFl => {
                 // Get all levers requires to switch the launcher.
-                const requiredLever = this.levers.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id));
+                const requiredLever = [
+                    ...this.levers.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id))
+                ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
                 if (requiredLever.length === activatedLeversLength) {
@@ -286,52 +285,6 @@ export default class TestScene extends Scene {
             })
     }
 
-    private initGhostDoorLogic(lever: Lever): void {
-        console.log(this.doors.filter(door => door.activationPatern.includes(lever.id)))
-        this.doors.filter(door => door.activationPatern.includes(lever.id))
-            .forEach(linkedDoor => {
-                // Get all levers requires to open the door.
-                const requiredLever = this.leversGhost.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id));
-                // Get the numbers of these levers that are activated
-                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
-                if (!linkedDoor.opened && requiredLever.length === activatedLeversLength) {
-                    // Open all the linked doors
-                    linkedDoor.open();
-
-                    // Remove the door collider
-                    this.doorColliders = this.doorColliders.filter(dc => {
-                        if ((dc.object2 as Door).activationPatern === linkedDoor.activationPatern) {
-                            this.physics.world.removeCollider(dc)
-                        }
-                        return dc;
-                    })
-                    // After delay we close the door and reaply the collider.
-                    this.time.delayedCall(10000, () => {
-                        linkedDoor.close();
-                        this.doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
-                    });
-                }
-            })
-    }
-
-    private initGhostFireBallLauncherLogic(lever: Lever): void {
-        this.fireballLauchers.filter(fl => fl.activationPatern.includes(lever.id.toString()))
-            .forEach(linkedFl => {
-                // Get all levers requires to switch the launcher.
-                const requiredLever = this.leversGhost.filter(l => linkedFl.activationPatern.includes((l.children.entries[0] as Lever).id.toString()));
-                // Get the numbers of these levers that are activated
-                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
-                if (requiredLever.length === activatedLeversLength) {
-                    // Activate all the launcher
-                    linkedFl.isActivated = !linkedFl.isActivated;
-
-                    // After delay we switch back the launchers
-                    this.time.delayedCall(2000, () => {
-                        linkedFl.isActivated = !linkedFl.isActivated;
-                    });
-                }
-            })
-    }
     public death(): void {
         if (!this.invincible) {
             this.invincible = true;

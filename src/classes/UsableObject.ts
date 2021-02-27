@@ -18,9 +18,4 @@ export default class UsableObject extends Phaser.GameObjects.Container {
     public update(): void {
         //
     }
-
-    public actionGhost() {
-
-        console.log('used !')
-    }
 }

@@ -65,8 +65,4 @@ export default class Lever extends Phaser.GameObjects.Container {
     public update(): void {
         // 
     }
-
-    public actionGhost(): void {
-        console.log(`Used activator n° ${this._id}`);
-    }
 }

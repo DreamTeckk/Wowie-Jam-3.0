@@ -51,7 +51,7 @@ export default class Player extends Phaser.GameObjects.Container {
     get events(): Phaser.Events.EventEmitter {
         return this._events;
     }
-    
+
     public create(): void {
 
         this.setSize(32, 32);
@@ -143,23 +143,23 @@ export default class Player extends Phaser.GameObjects.Container {
 
     public death(): void {
         if (this._isAlive) {
-            console.log("t mor lol")
+            //console.log("t mor lol")
             this._isAlive = false;
 
             if (this.player.body.velocity.x > 0) {
-                console.log("x > 0");
+                //console.log("x > 0");
                 this._player.setPosition(this.player.x - 10, this.player.y);
             }
             if (this.player.body.velocity.y > 0) {
-                console.log("y > 0");
+                //console.log("y > 0");
                 this._player.setPosition(this.player.x, this.player.y - 10);
             }
             if (this.player.body.velocity.x < 0) {
-                console.log("x < 0");
+                //console.log("x < 0");
                 this._player.setPosition(this.player.x + 10, this.player.y);
             }
             if (this.player.body.velocity.y < 0) {
-                console.log("y < 0");
+                //console.log("y < 0");
                 this._player.setPosition(this.player.x, this.player.y + 10);
             }
             this._player.setVelocityX(0);
