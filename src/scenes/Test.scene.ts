@@ -29,6 +29,9 @@ export default class TestScene extends Scene {
 
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
+    
+    /** Activated */
+    private fireballLauncherActivated: FireballsLauncher[] = []
 
     constructor() {
         super(config)
@@ -151,6 +154,7 @@ export default class TestScene extends Scene {
                 if (object === lever) {
                     lever.actionGhost();
                     this.initDoorLogic(lever);
+                    this.initLauncherLogic(lever)
                     this.revive();
                 }
             });
@@ -171,8 +175,14 @@ export default class TestScene extends Scene {
     private initLauncherLogic(lever: Lever): void {
         this.fireballLaunchers.filter(launcher => launcher.id === lever.id)
             .forEach(linkedLauncher => {
-                linkedLauncher.changeState();
-
+                if(!this.fireballLauncherActivated.includes(linkedLauncher)){
+                    linkedLauncher.changeState();
+                    this.fireballLauncherActivated.push(linkedLauncher)
+                    this.time.delayedCall(10000, () => {
+                        linkedLauncher.changeState();
+                        this.fireballLauncherActivated.shift()
+                    });
+                }
             })
     }
 

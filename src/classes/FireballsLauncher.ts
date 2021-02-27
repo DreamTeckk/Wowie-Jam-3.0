@@ -9,9 +9,11 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     private _fireballs: Phaser.Physics.Arcade.Sprite[];
     // N E W S
-    private _direction
+    private _direction: string
 
-    private _id;
+    private _id : number;
+
+    private _reactivateTime : number;
 
     constructor(x: number, y: number, scene: Scene, direction: string, id: integer, isActivated: boolean) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
@@ -74,6 +76,8 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     }
 
     public changeState(){
+        
         this._isActivated = !this._isActivated
     }
+
 }
