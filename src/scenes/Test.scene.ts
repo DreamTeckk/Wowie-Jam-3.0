@@ -84,6 +84,8 @@ export default class TestScene extends Scene {
             doorColliders.push(this.physics.add.collider(this.player.player, door))
         })
 
+        this.physics.add.collider(this.ghost.asset, this.walls);
+
         // Bind lever action to open linked door
         this.levers.forEach(e => {
             // Check if player is on a lever action's zone 
@@ -107,7 +109,7 @@ export default class TestScene extends Scene {
                                     }
                                     return dc;
                                 })
-                                // After delay we close the door and reaply the physics.
+                                // After delay we close the door and reaply the collider.
                                 this.time.delayedCall(10000, () => {
                                     linkedDoor.close();
                                     doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))

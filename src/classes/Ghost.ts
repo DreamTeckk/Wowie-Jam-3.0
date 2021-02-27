@@ -58,21 +58,6 @@ export default class Ghost extends Phaser.GameObjects.Container {
 
         if (this.actionPressed === true && this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
             this.actionPressed = false;
-
-        /*this._itemsInRange = this.scene.physics.overlapRect(this._asset.x,this._asset.y, this._asset.width, this._asset.height)
-
-        this._itemsInRange.forEach((itemInRange:Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody) => {
-            //console.log("test")
-            //console.log(itemInRange.gameObject)
-            //itemInRange.gameObject.destroy();
-        });    
-        //console.log("test")
-        if(this._cursors.space.isDown){
-            this._itemsInRange.forEach((itemInRange:Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody) => {
-                console.log(itemInRange.gameObject)
-                //itemInRange.gameObject.destroy();
-            });
-        }*/
     }
 
     public objectAction(object): void {

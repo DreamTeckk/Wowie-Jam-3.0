@@ -121,4 +121,8 @@ export default class Player extends Phaser.GameObjects.Container {
 
         }
     }
+
+    initCollider(object2): void {
+        this.scene.physics.collide(this, object2);
+    }
 }
