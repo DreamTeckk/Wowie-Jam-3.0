@@ -17,24 +17,27 @@ export default class MenuScene extends Phaser.Scene {
 
     public preload(): void {
         this.load.image('backgrondMainMenu', 'assets/images/backgrondMainMenu.png');
+        this.load.audio('theme', [
+            'assets/sounds/menu.wav'
+        ]);
+    }
         /**
          *  The preload() method is used to load all the assets before the game starts.
          *  It's used to prevent the game to start with missing or unload images, spritesheets, etc.. 
          */
-    }
+    
 
     public create(): void {
-        this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
+        //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
+        let music = this.sound.add('theme');
         let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()
         playButton.once('pointerdown', () => {
             //console.log(this)
+            music.stop()
             this.scene.start('test')
         }, this)
-        /**
-         * The create() method is called after the preload() method has finished loading all the assets.
-         * Here we can call the create() methods of our others Classes and add the logic to setup the 
-         * decorations of our Scene.   
-         */
+
+        music.play();
     }
 
     /**
