@@ -8,6 +8,7 @@ import { Scene } from 'phaser';
 import Activator from '../classes/Lever';
 import Player from '../classes/Player';
 import Ghost from '../classes/Ghost'
+import FireballsLauncher from '../classes/FireballsLauncher'
 import UsableObject from '../classes/UsableObject'
 
 
@@ -16,6 +17,7 @@ export default class TestScene extends Scene {
     private player: Player;
     private lever;
     private walls;
+    private fireballLauncher : FireballsLauncher;
     private ghost: Ghost;
     private gameObjects: Phaser.Physics.Arcade.StaticGroup;
 
@@ -60,7 +62,6 @@ export default class TestScene extends Scene {
         // Create collisions between Player and Walls
         this.physics.add.collider(this.player.player, this.walls);
 
-
         //Lever
         this.lever = new Activator(400, 400, this);
         this.lever.create();
@@ -77,6 +78,10 @@ export default class TestScene extends Scene {
             });
         })
 
+        this.fireballLauncher = new FireballsLauncher(250,150,this, this.walls,'W')
+        this.fireballLauncher.create()
+        this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
+        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => {console.log('you die'); fireball.destroy()})
         this.ghost.events.on('interact', (object) => {
             //
         })
@@ -91,6 +96,6 @@ export default class TestScene extends Scene {
      */
     public update(time: number, delta: number): void {
         this.player.update();
-        this.ghost.update()
+        this.ghost.update();
     }
 }
