@@ -14,6 +14,8 @@ export default class Player extends Phaser.GameObjects.Container {
     private xPos: number;
     private yPos: number;
     private _player: Physics.Arcade.Sprite;
+    private actionPressed: boolean
+    private _events: Phaser.Events.EventEmitter = new Phaser.Events.EventEmitter();
 
     private playerSpeed: number;
     private idle;
@@ -29,6 +31,7 @@ export default class Player extends Phaser.GameObjects.Container {
         this.idle = true;
         this.xPos = x;
         this.yPos = y;
+        this.actionPressed = false;
     }
 
     // Is Alive getter and setter
@@ -45,6 +48,10 @@ export default class Player extends Phaser.GameObjects.Container {
         return this._player
     }
 
+    get events(): Phaser.Events.EventEmitter {
+        return this._events;
+    }
+    
     public create(): void {
 
         this.setSize(32, 32);
@@ -121,9 +128,16 @@ export default class Player extends Phaser.GameObjects.Container {
                     this._player.anims.play('idle');
             }
 
-            if (this.cursor.space.isDown) {
+            if (this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
+                if (this.actionPressed === true)
+                    this.actionPressed = false;
+        }
+    }
 
-            }
+    public objectAction(object): void {
+        if (this.cursor.space.isDown && !this.actionPressed && this.isAlive) {
+            this.actionPressed = true;
+            this._events.emit('interact', object)
         }
     }
 
