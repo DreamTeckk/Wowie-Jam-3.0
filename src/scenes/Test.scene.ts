@@ -118,7 +118,7 @@ export default class TestScene extends Scene {
         this.fireballLauncher = new FireballsLauncher(250, 150, this, this.walls, Direction.EAST)
         this.fireballLauncher.create()
         this.physics.add.collider(this.fireballLauncher.fireballs, this.walls, (fireball) => fireball.destroy())
-        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { console.log('you die'); fireball.destroy() })
+        this.physics.add.collider(this.player.player, this.fireballLauncher.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
         this.ghost.events.on('interact', (object) => {
             //
         })
