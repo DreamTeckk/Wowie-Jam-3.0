@@ -102,7 +102,8 @@ export default class TestScene extends Scene {
         this.leverGhostTiles.forEach(lever => {
             const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, true);
             l.create();
-            this.leversGhost.push(this.physics.add.staticGroup(l));
+            this.leversGhost.push(this.physics.add.staticGroup(l).setVisible(false));
+
         });
 
         // Display doors 
@@ -170,7 +171,7 @@ export default class TestScene extends Scene {
         this.physics.add.collider(this.ghost.asset, this.walls);
 
         // Bind lever action to open linked door
-        this.levers.forEach(e => {
+        this.leversGhost.forEach(e => {
             // Check if player is on a lever action's zone 
             this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Lever)));
             // Register the event emited whene the ghost interact with a lever
@@ -183,11 +184,32 @@ export default class TestScene extends Scene {
                         // Deactivate the lever after x milliseconds
                         this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
                         this.initDoorLogic(lever);
+                        //this.initGhostDoorLogic(lever);
+
                         this.initFireBallLauncherLogic(lever);
+                        this.initGhostFireBallLauncherLogic(lever)
+
                         this.revive();
                     }
                 }
             });
+        })
+
+        this.levers.forEach(e => {
+            this.physics.add.overlap(this.player.player, e, () => this.player.objectAction((e.children.entries[0] as Lever)));
+            this.player.events.on('interact', (object) => {
+                const lever = e.children.entries[0] as Lever;
+                if (object === lever) {
+                    console.log('lever', lever);
+
+                    // Activate the lever
+                    lever.isActivated = true;
+                    // Deactivate the lever after x milliseconds
+                    this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+                    this.initDoorLogic(lever);
+                    this.initFireBallLauncherLogic(lever)
+                }
+            })
         })
 
         this.teleporters.forEach(e => {
@@ -215,10 +237,14 @@ export default class TestScene extends Scene {
     }
 
     private initDoorLogic(lever: Lever): void {
+        console.log(this.doors.filter(door => door.activationPatern.includes(lever.id)))
         this.doors.filter(door => door.activationPatern.includes(lever.id))
             .forEach(linkedDoor => {
                 // Get all levers requires to open the door.
-                const requiredLever = this.levers.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id));
+                const requiredLever = [
+                    ...this.levers.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id))
+                ]
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
                 if (!linkedDoor.opened && requiredLever.length === activatedLeversLength) {
@@ -260,12 +286,59 @@ export default class TestScene extends Scene {
             })
     }
 
+    private initGhostDoorLogic(lever: Lever): void {
+        console.log(this.doors.filter(door => door.activationPatern.includes(lever.id)))
+        this.doors.filter(door => door.activationPatern.includes(lever.id))
+            .forEach(linkedDoor => {
+                // Get all levers requires to open the door.
+                const requiredLever = this.leversGhost.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id));
+                // Get the numbers of these levers that are activated
+                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                if (!linkedDoor.opened && requiredLever.length === activatedLeversLength) {
+                    // Open all the linked doors
+                    linkedDoor.open();
+
+                    // Remove the door collider
+                    this.doorColliders = this.doorColliders.filter(dc => {
+                        if ((dc.object2 as Door).activationPatern === linkedDoor.activationPatern) {
+                            this.physics.world.removeCollider(dc)
+                        }
+                        return dc;
+                    })
+                    // After delay we close the door and reaply the collider.
+                    this.time.delayedCall(10000, () => {
+                        linkedDoor.close();
+                        this.doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
+                    });
+                }
+            })
+    }
+
+    private initGhostFireBallLauncherLogic(lever: Lever): void {
+        this.fireballLauchers.filter(fl => fl.activationPatern.includes(lever.id.toString()))
+            .forEach(linkedFl => {
+                // Get all levers requires to switch the launcher.
+                const requiredLever = this.leversGhost.filter(l => linkedFl.activationPatern.includes((l.children.entries[0] as Lever).id.toString()));
+                // Get the numbers of these levers that are activated
+                const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                if (requiredLever.length === activatedLeversLength) {
+                    // Activate all the launcher
+                    linkedFl.isActivated = !linkedFl.isActivated;
+
+                    // After delay we switch back the launchers
+                    this.time.delayedCall(2000, () => {
+                        linkedFl.isActivated = !linkedFl.isActivated;
+                    });
+                }
+            })
+    }
     public death(): void {
         if (!this.invincible) {
             this.invincible = true;
             this.time.delayedCall(3500, () => this.invincible = false, null, this);
             this.player.death();
             this.ghost.death(this.player.player.x, this.player.player.y);
+            this.leversGhost.forEach(element => element.setVisible(true));
             this.time.delayedCall(3000, () => this.revive(), null, this);
             this.cameras.main.stopFollow();
             this.cameras.main.startFollow(this.ghost.asset);
@@ -279,6 +352,7 @@ export default class TestScene extends Scene {
         this.cameras.main.stopFollow();
         this.cameras.main.startFollow(this.player.player);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        this.leversGhost.forEach(element => element.setVisible(false));
         this.invincible = true;
         this.time.delayedCall(1000, () => this.invincible = false, null, this);
     }
