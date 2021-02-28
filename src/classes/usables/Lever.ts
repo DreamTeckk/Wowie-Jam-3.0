@@ -52,23 +52,25 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-        this._sounds.push(this.scene.sound.add('leverOpen'))
-        this._sounds.push(this.scene.sound.add('leverClose'))
-        this.objectSprite = this.scene.physics.add.sprite(0, 0, 'activator');
-        this.add(this.objectSprite)
+        this._sounds.push(this.scene.sound.add('leverOpen'));
+        this._sounds.push(this.scene.sound.add('leverClose'));
         if (this._ghost !== null) {
             if (this._ghost)
-                this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xffffff))
-            else
-                this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xaaaaaa))
+                this.objectSprite = this.scene.physics.add.sprite(0, 0, 'lever_ghost');
+            else {
+                this.objectSprite = this.scene.physics.add.sprite(0, 0, 'lever');
+            }
         } else {
-            console.log('pressure plate')
+            //console.log('pressure plate')
             this.add(this.scene.add.rectangle(0, 0, 32, 32, 0x582900))
         }
+        this.add(this.objectSprite);
 
         this.setSize(48, 48);
         this.setInteractive();
         this.scene.add.existing(this);
+
+        this.registerAnims();
     }
 
     public update(): void {
@@ -81,5 +83,34 @@ export default class Lever extends Phaser.GameObjects.Container {
 
     public playClose(): void {
         this._sounds[1].play()
+    }
+
+    public changeState(): void {
+        if (!this._isActivated) {
+            this.playOpen();
+            this.objectSprite.play(`lever_${this._ghost ? 'ghost_' : ''}activate`);
+        } else {
+            this.playClose();
+            this.objectSprite.playReverse(`lever_${this._ghost ? 'ghost_' : ''}activate`)
+        }
+        this._isActivated = !this.isActivated;
+    }
+
+    public registerAnims(): void {
+        const leverActivateAnim: Phaser.Types.Animations.Animation = {
+            key: 'lever_activate',
+            frames: this.scene.anims.generateFrameNumbers('lever', { start: 0, end: 1, first: 0 }),
+            frameRate: 10,
+            repeat: 0
+        };
+        const leverGhostActivateAnim: Phaser.Types.Animations.Animation = {
+            key: 'lever_ghost_activate',
+            frames: this.scene.anims.generateFrameNumbers('lever_ghost', { start: 0, end: 1, first: 0 }),
+            frameRate: 10,
+            repeat: 0
+        }
+
+        this.scene.anims.create(leverActivateAnim);
+        this.scene.anims.create(leverGhostActivateAnim);
     }
 }

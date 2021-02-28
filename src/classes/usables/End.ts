@@ -2,7 +2,6 @@ import { GameObjects, Scene } from 'phaser';
 
 export default class End extends Phaser.GameObjects.Container {
 
-    private sprite: GameObjects.Rectangle;
     private _id: number;
     private _xPos: number;
     private _yPos: number;
@@ -18,7 +17,8 @@ export default class End extends Phaser.GameObjects.Container {
 
     public create(): void {
         //this.objectSprite = this.scene.physics.add.sprite(0, 0, 'activator');
-        this.sprite = this.scene.add.rectangle(0, 0, 32, 32, 0x750761).setOrigin(0.5, 0.5);
+        this.objectSprite = this.scene.physics.add.sprite(0, 0, 'end_stone', 0);
+        this.add(this.objectSprite);
         this.setSize(32, 32);
         this.setInteractive();
         this.scene.add.existing(this);
