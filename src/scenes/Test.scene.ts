@@ -306,7 +306,7 @@ export default class TestScene extends Scene {
         this.music.play();
 
         //Create the music button
-        this.musicButton = this.add.sprite(1067, 100, 'musicButton').setInteractive().setScrollFactor(0)
+        this.musicButton = this.add.sprite(1058, 99, 'musicButton').setInteractive().setScrollFactor(0)
         this.musicButton.on('pointerdown', () => {
             if(this.music.isPaused) {
                 this.music.play();
