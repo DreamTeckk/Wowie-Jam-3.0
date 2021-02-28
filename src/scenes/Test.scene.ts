@@ -60,6 +60,7 @@ export default class TestScene extends Scene {
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('lever_ghost', 'assets/images/objects/ghost_lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.load.spritesheet('pressure_plate', 'assets/spritesheets/placeholder.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('start_stone', 'assets/images/objects/start.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('end_stone', 'assets/images/objects/end.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('firebase', 'assets/images/objects/firebase.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -151,16 +152,17 @@ export default class TestScene extends Scene {
 
 
         //Display pressure plate 
-        this.pressurePlateTiles.forEach(pp => {
-            const l = new Lever(pp.x + pp.width / 2, pp.y + pp.height / 2, this, null, pp.properties);
+        this.pressurePlateTiles.forEach(lever => {
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, null, lever.properties);
             l.create();
             this.pressurePlates.push(this.physics.add.staticGroup(l));
         });
 
         //Display tp 
-        const l2 = new Teleporter(800, 500, this);
-        this.teleporters.push(this.physics.add.staticGroup(l2));
-        map.setCollisionBetween(1, 999, true, true, this.walls);
+        
+        //const l2 = new Teleporter(800, 500, this);
+        //this.teleporters.push(this.physics.add.staticGroup(l2));
+        //map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
         this.player = new Player(this.startTile.x, this.startTile.y, this);
