@@ -20,7 +20,6 @@ export default class Lever extends Phaser.GameObjects.Container {
         this._isActivated = false;
         this._activationTime = 10000;
         this._ghost = ghost;
-        
     }
 
     get id(): number {
