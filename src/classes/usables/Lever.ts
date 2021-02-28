@@ -8,14 +8,17 @@ export default class Lever extends Phaser.GameObjects.Container {
     private _xPos: number;
     private _yPos: number;
     private _isActivated: boolean;
+    private _desactivators: number[];
     private objectSprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private _activationTime: number;
     private _ghost: boolean;
     private _sounds: Phaser.Sound.BaseSound[] = [];
+    private _alreadyChanged = false;    
 
     constructor(x: number, y: number, scene: Scene, ghost: boolean, properties: CustomProperties[]) {
         super(scene, x, y)
         this._id = properties.filter(p => p.name === 'id')[0].value as number;
+        this._desactivators = (properties.filter(p => p.name === 'desactivator')[0].value as string).split('-').map(id => parseInt(id));
         this._xPos = x;
         this._yPos = y;
         this._isActivated = false;
@@ -39,6 +42,14 @@ export default class Lever extends Phaser.GameObjects.Container {
         this._isActivated = value;
     }
 
+    get alreadyChanged(): boolean {
+        return this._alreadyChanged;
+    }
+
+    set alreadyChanged(value: boolean) {
+        this._alreadyChanged = value;
+    }
+
     get ghost(): boolean {
         return this.ghost;
     }
@@ -50,6 +61,10 @@ export default class Lever extends Phaser.GameObjects.Container {
     get activationTime(): number {
         return this._activationTime;
     }
+
+    get desactivators(): number[] {
+        return this._desactivators;
+    } 
 
     public create(): void {
         this._sounds.push(this.scene.sound.add('leverOpen'));

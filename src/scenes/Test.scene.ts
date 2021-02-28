@@ -18,6 +18,7 @@ import End from '../classes/usables/End';
 export default class TestScene extends Scene {
 
     private player: Player;
+    private leverList: Lever[] = [];
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private walls: Phaser.Tilemaps.TilemapLayer;
     private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
@@ -29,6 +30,7 @@ export default class TestScene extends Scene {
     private leversGhost: Phaser.Physics.Arcade.StaticGroup[] = [];
     private pressurePlates: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
+    private musicButton: Phaser.GameObjects.Sprite;
 
     /** Object Layer */
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -55,7 +57,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/DevMap.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-3.json');
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -71,13 +73,14 @@ export default class TestScene extends Scene {
         this.load.spritesheet('ghost', 'assets/images/player/ghost_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
 
 
+        this.load.spritesheet('musicButton', 'assets/spritesheets/musicButton.png', { frameWidth: 64, frameHeight: 64, endFrame: 1 })
 
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
         // Load Activator sprite
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
 
         // Load Sounds
-        this.load.audio('themeGame', 'assets/sounds/menu.wav');
+        this.load.audio('themeGame', 'assets/sounds/gameTheme.mp3');
         this.load.audio('leverOpen', 'assets/sounds/objects/leverOpen.wav');
         this.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
         this.load.audio('door', 'assets/sounds/objects/door.wav');
@@ -127,6 +130,7 @@ export default class TestScene extends Scene {
             const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, false, lever.properties);
             l.create();
             this.levers.push(this.physics.add.staticGroup(l));
+            this.leverList.push(l);
         });
 
         // Display ghost
@@ -264,14 +268,25 @@ export default class TestScene extends Scene {
                     if (!lever.isActivated) {
                         // Activate the lever
                         lever.changeState();
-                        // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => {
-                            this.desactivateIndicators(lever);
-                            lever.changeState()
+                        lever.desactivators.forEach(des => {
+                            this.leverList.forEach(lev => {
+                                if(lev.id == des && lev.isActivated) {
+                                    lev.changeState();
+                                    lever.changeState();
+                                }
+                            });
                         });
+                        // Deactivate the lever after x milliseconds
+                        if(lever.activationTime != 0)
+                            this.time.delayedCall(lever.activationTime, () => {
+                                this.desactivateIndicators(lever);
+                                lever.changeState()
+                            });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever)
-                        this.initFireLogic(lever);
+                        this.initFireLogic(lever);      
+                    } else if(lever.activationTime == 0) {
+                        lever.changeState();
                     }
                 }
             })
@@ -303,8 +318,22 @@ export default class TestScene extends Scene {
         })
 
         //SOUND AFFECTATION
-        this.music = this.sound.add('themeGame');
-        // this.music.play()
+        this.music = this.sound.add('themeGame', {loop: true, volume: 0.1});
+        this.music.play();
+
+        //Create the music button
+        this.musicButton = this.add.sprite(1090, 75, 'musicButton').setOrigin(1,0).setInteractive().setScrollFactor(0)
+        this.musicButton.on('pointerdown', () => {
+            if(this.music.isPaused) {
+                this.music.play();
+                this.musicButton.setFrame(0);
+            } else {
+                this.music.pause();
+                this.musicButton.setFrame(1);
+            }   
+        }, this);
+
+        this.add.existing(this.musicButton);
 
     }
     /**
