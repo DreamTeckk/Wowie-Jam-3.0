@@ -1,0 +1,8 @@
+@font-face {
+    font-family: "Shadded South";
+    src: url('./Shadded_South.ttf');
+}
+
+.title{
+    font-family: "Shadded South", Arial, Helvetica, sans-serif;
+}
