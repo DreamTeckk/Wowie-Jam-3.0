@@ -243,14 +243,23 @@ export default class TestScene extends Scene {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
                     if (!lever.isActivated) {
-                        // Activate the lever
+                        //Activate lever
                         lever.changeState();
+                        lever.desactivators.forEach(des => {
+                            this.leverList.forEach(lev => {
+                                if(lev.id == des && lev.isActivated) {
+                                    lev.changeState();
+                                    lever.changeState();
+                                }
+                            });
+                        });
                         //Play lever music
                         lever.playOpen()
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => {
-                            this.desactivateIndicators(lever);
-                            lever.changeState()
+                        if(lever.activationTime != 0)
+                            this.time.delayedCall(lever.activationTime, () => {
+                                this.desactivateIndicators(lever);
+                                lever.changeState()
                         });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
