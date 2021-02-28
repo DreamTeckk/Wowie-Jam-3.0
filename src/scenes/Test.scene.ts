@@ -55,7 +55,7 @@ export default class TestScene extends Scene {
 
     public preload(): void {
         //Load Tiles & TileMap
-        this.load.image('tiles', 'assets/images/tileset.png');
+        this.load.image('tiles', 'assets/images/tileset/tileset.png');
         this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-1.json');
 
         // Load Player sprite
