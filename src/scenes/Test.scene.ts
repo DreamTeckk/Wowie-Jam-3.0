@@ -46,6 +46,9 @@ export default class TestScene extends Scene {
     /** Colliders */
     private doorColliders: Phaser.Physics.Arcade.Collider[] = []
 
+    /* Music */
+    private music: Phaser.Sound.BaseSound;
+
     constructor() {
         super(config)
     }
@@ -61,6 +64,15 @@ export default class TestScene extends Scene {
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
         // Load Ghost sprite
         this.load.image('ghost', '/assets/images/ghost.png');
+
+        // Load Sounds
+        this.load.audio('themeGame', 'assets/sounds/menu.wav');
+        this.load.audio('leverOpen', 'assets/sounds/objects/leverOpen.wav');
+        this.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
+        this.load.audio('door', 'assets/sounds/objects/door.wav');
+        this.load.audio('fireball', 'assets/sounds/objects/fireball.wav');
+
+
     }
 
     public create(): void {
@@ -214,8 +226,10 @@ export default class TestScene extends Scene {
                     if (!lever.isActivated) {
                         // Activate the lever
                         lever.isActivated = true;
+                        //Play lever music
+                        lever.playOpen()
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+                        this.time.delayedCall(lever.activationTime, () => {lever.isActivated = false, lever.playClose()});
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
@@ -233,8 +247,10 @@ export default class TestScene extends Scene {
                 if (object === lever) {
                     // Activate the lever
                     lever.isActivated = true;
+                    //Play lever music
+                    lever.playOpen()
                     // Deactivate the lever after x milliseconds
-                    this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
+                    this.time.delayedCall(lever.activationTime, () => {lever.isActivated = false; lever.playClose()});
                     this.initDoorLogic(lever);
                     this.initFireBallLauncherLogic(lever)
                 }
@@ -264,6 +280,11 @@ export default class TestScene extends Scene {
                 this.initFireBallLauncherLogic(lever)   
             })
         })
+
+        //SOUND AFFECTATION
+        this.music = this.sound.add('themeGame');
+        this.music.play()
+
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
@@ -388,6 +409,7 @@ export default class TestScene extends Scene {
     }
 
     public nextMap(): void {
+        this.music.stop()
         this.scene.start('tmpScene');
     }
 }

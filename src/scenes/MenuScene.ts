@@ -17,7 +17,7 @@ export default class MenuScene extends Phaser.Scene {
 
     public preload(): void {
         this.load.image('backgrondMainMenu', 'assets/images/backgrondMainMenu.png');
-        this.load.audio('theme', [
+        this.load.audio('themeMenu', [
             'assets/sounds/menu.wav'
         ]);
     }
@@ -29,7 +29,7 @@ export default class MenuScene extends Phaser.Scene {
 
     public create(): void {
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
-        let music = this.sound.add('theme');
+        let music = this.sound.add('themeMenu');
         let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()
         playButton.once('pointerdown', () => {
             //console.log(this)

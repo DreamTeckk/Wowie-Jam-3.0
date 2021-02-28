@@ -10,6 +10,7 @@ export default class Lever extends Phaser.GameObjects.Container {
     private objectSprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private _activationTime: number;
     private _ghost: boolean;
+    private _sounds: Phaser.Sound.BaseSound[] = [];
 
     constructor(x: number, y: number, id: number, scene: Scene, ghost: boolean) {
         super(scene, x, y)
@@ -24,6 +25,7 @@ export default class Lever extends Phaser.GameObjects.Container {
 
     get id(): number {
         return this._id;
+
     }
 
     set id(newId: number) {
@@ -51,6 +53,8 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
+        this._sounds.push(this.scene.sound.add('leverOpen'))
+        this._sounds.push(this.scene.sound.add('leverClose'))
         this.objectSprite = this.scene.physics.add.sprite(0, 0, 'activator');
         this.add(this.objectSprite)
         if(this._ghost !== null){
@@ -70,5 +74,13 @@ export default class Lever extends Phaser.GameObjects.Container {
 
     public update(): void {
         // 
+    }
+
+    public playOpen(): void {
+        this._sounds[0].play()
+    }
+
+    public playClose(): void {
+        this._sounds[1].play()
     }
 }
