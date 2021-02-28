@@ -172,19 +172,15 @@ export default class Player extends Phaser.GameObjects.Container {
     }
 
     public revive(): void {
-        this.scene.time.delayedCall(500, () => {
             this._isAlive = true;
             this._player.setActive(true)
-        })
         //this._isAlive = true;
         //this._player.setActive(true).setVisible(true);
     }
 
     public reviveTeleport(x, y): void {
         this._player.setPosition(x, y);
-        this.scene.time.delayedCall(500, () => {
-            this._isAlive = true;
-            this.player.setActive(true)
-        })
+        this._isAlive = true;
+        this.player.setActive(true)
     }
 }
