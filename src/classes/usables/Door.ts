@@ -17,7 +17,7 @@ export default class Door extends Phaser.GameObjects.Container {
         this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
         this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
         this._opened = false;
-        this._indicatorDirection = Direction.NORTH;
+        this._indicatorDirection = properties.filter(p => p.name === 'indicatorDirection')[0].value as string;
         this.faceDoor = faceDoor;
     }
 

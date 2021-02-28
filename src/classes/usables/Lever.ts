@@ -67,6 +67,9 @@ export default class Lever extends Phaser.GameObjects.Container {
     } 
 
     public create(): void {
+        if (isNaN(this._desactivators[0]))
+            this._desactivators = [];
+
         this._sounds.push(this.scene.sound.add('leverOpen'));
         this._sounds.push(this.scene.sound.add('leverClose'));
         if (this._ghost !== null) {

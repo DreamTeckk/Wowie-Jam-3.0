@@ -57,7 +57,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-3.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/DevMap.json');
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -94,6 +94,7 @@ export default class TestScene extends Scene {
         const tiles = map.addTilesetImage('TileSet', 'tiles');
 
         // Display Map Layers 
+        map.createLayer('Underground', tiles);
         map.createLayer('Ground', tiles);
         map.createLayer('Props', tiles);
         map.createLayer('Spikes', tiles);
