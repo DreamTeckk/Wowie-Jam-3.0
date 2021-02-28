@@ -319,13 +319,21 @@ export default class TestScene extends Scene {
         this.pressurePlates.forEach(e => {
             this.physics.add.overlap(this.player.player, e, (player, e) => {
                 const lever = e as Lever
-                // Activate the lever
-                lever.isActivated = true;
-                // Deactivate the lever after x milliseconds
-                this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
-                this.initDoorLogic(lever);
-                this.initFireBallLauncherLogic(lever);
-                this.initFireLogic(lever);
+                if (!lever.isActivated) {
+                    // Activate the lever
+                    lever.changeState();
+                    // Deactivate the lever after x milliseconds
+                    if(lever.activationTime != 0)
+                            this.time.delayedCall(lever.activationTime, () => {
+                                this.desactivateIndicators(lever);
+                                lever.changeState()
+                            });
+                    this.initDoorLogic(lever);
+                    this.initFireBallLauncherLogic(lever);
+                    this.initFireLogic(lever);
+                }else if(lever.activationTime == 0) {
+                    lever.changeState();
+                }
             })
         })
 
@@ -365,7 +373,9 @@ export default class TestScene extends Scene {
                 // Get all levers requires to open the door.
                 const requiredLever = [
                     ...this.levers.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id))
+                    ...this.leversGhost.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.pressurePlates.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id))
+
                 ]
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;

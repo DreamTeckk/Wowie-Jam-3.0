@@ -15,6 +15,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     private _activationTime: number;
     private _indicatorDirection: string;
     private _indicators: Phaser.GameObjects.Rectangle[] = [];
+    private _fireRate: number;
 
     constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
@@ -25,6 +26,8 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
         this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
         this._indicatorDirection = properties.filter(p => p.name === 'indicatorDirection')[0].value as string;
+        this._fireRate = properties.filter(p => p.name === 'fireRate')[0].value as number;
+
     }
 
     get isActivated(): boolean {
@@ -51,6 +54,10 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         return this._activationTime;
     }
 
+    get fireRate(): number {
+        return this._fireRate;
+    }
+
     public create(): void {
         if (isNaN(this._activators[0]))
             this._activators = [];
@@ -58,7 +65,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         this.createIndicators();
         this.scene.add.existing(this);
         this.scene.time.addEvent({
-            delay: 500,
+            delay: this._fireRate,
             callback: () => {
                 if (this._isActivated) {
                     const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball')

@@ -28,6 +28,7 @@ export default class MenuScene extends Phaser.Scene {
     
 
     public create(): void {
+        this.game.registry.set('idLevel', 0);
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
         let music = this.sound.add('themeMenu');
         let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()

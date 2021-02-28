@@ -70,7 +70,7 @@ export default class Fire extends Phaser.GameObjects.Container {
                     this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, -tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
                     break;
                 case Direction.EAST:
-                    this._indicators.push(this.scene.add.rectangle(tileSize + 16, offset * (i + 1) - tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    this._indicators.push(this.scene.add.rectangle(tileSize + 16, offset * (i + 1) -tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
                     break;
                 case Direction.SOUTH:
                     this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
