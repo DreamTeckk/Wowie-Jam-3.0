@@ -13,16 +13,18 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     private _direction: string;
     private _activators: number[] = [];
     private _activationTime: number;
+    private _indicatorDirection: string;
+    private _indicators: Phaser.GameObjects.Rectangle[] = [];
 
     constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher');
         this._fireballs = [];
         this._isActivated = properties.filter(p => p.name === 'activated')[0].value as boolean;
         this._direction = properties.filter(p => p.name === 'direction')[0].value as string;
         this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
         this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
+        this._indicatorDirection = properties.filter(p => p.name === 'indicatorDirection')[0].value as string;
     }
 
     get isActivated(): boolean {
@@ -50,15 +52,14 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-
-        this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xFF0000));
-        this.scene.add.existing(this);
         this.setSize(32, 32);
+        this.createIndicators();
+        this.scene.add.existing(this);
         this.scene.time.addEvent({
             delay: 500,
             callback: () => {
                 if (this._isActivated) {
-                    const fireball = this.scene.physics.add.sprite(this._assetLauncher.x, this._assetLauncher.y, 'fireball')
+                    const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball')
                     if (this._direction === Direction.SOUTH)
                         fireball.setVelocityY(300);
                     if (this._direction === Direction.NORTH)
@@ -72,6 +73,45 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
             },
             loop: true
         });
+    }
+
+    private createIndicators(): void {
+        const tileSize = 32;
+        const indicatorNum = this.activators.length;
+        const offset = tileSize / (indicatorNum + 1);
+        console.log(offset);
+
+        for (let i = 0; i < indicatorNum; i++) {
+            switch (this._indicatorDirection) {
+                case Direction.NORTH:
+                    this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, -tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    break;
+                case Direction.EAST:
+                    this._indicators.push(this.scene.add.rectangle(tileSize + 16, offset * (i + 1) - tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    break;
+                case Direction.SOUTH:
+                    this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    break;
+                case Direction.WEST:
+                    this._indicators.push(this.scene.add.rectangle(-tileSize + 16, offset * (i + 1) - tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    break;
+                default:
+                    break;
+            }
+            this.add(this._indicators[i]);
+        }
+    }
+
+    public activateIndicator(n: number): void {
+        for (let i = 0; i < n; i++) {
+            this._indicators[i].setFillStyle(0x34ebde);
+        }
+    }
+
+    public desactivateIndicator(): void {
+        const lastOn = this._indicators.filter(indic => indic.fillColor === 0x34ebde).length;
+        if (lastOn)
+            this._indicators[lastOn - 1].setFillStyle(0x000000);
     }
 
     public update(): void {
