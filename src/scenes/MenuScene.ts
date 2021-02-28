@@ -16,21 +16,37 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     public preload(): void {
+        //background loading
         this.load.image('backgrondMainMenu', 'assets/images/backgrondMainMenu.png');
+        
+        //theme menu loading
         this.load.audio('theme', [
             'assets/sounds/menu.wav'
         ]);
+
+        //buttons loading
+        this.load.image('buttonPlay', 'assets/images/buttons/buttonPlay.png');
+        this.load.image('buttonCredits', 'assets/images/buttons/buttonCredits.png');
+        this.load.image('buttonHow', 'assets/images/buttons/buttonHow.png');
     }
-        /**
-         *  The preload() method is used to load all the assets before the game starts.
-         *  It's used to prevent the game to start with missing or unload images, spritesheets, etc.. 
-         */
     
 
     public create(): void {
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
         let music = this.sound.add('theme');
-        let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()
+        let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2-64, 'buttonPlay').setInteractive()
+        playButton.once('pointerdown', () => {
+            //console.log(this)
+            music.stop()
+            this.scene.start('test')
+        }, this)
+        let creditsButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2+16, 'buttonCredits').setInteractive()
+        playButton.once('pointerdown', () => {
+            //console.log(this)
+            music.stop()
+            this.scene.start('test')
+        }, this)
+        let howButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2+96, 'buttonHow').setInteractive()
         playButton.once('pointerdown', () => {
             //console.log(this)
             music.stop()
