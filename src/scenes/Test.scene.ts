@@ -127,6 +127,7 @@ export default class TestScene extends Scene {
             this.spikes.push(this.physics.add.staticGroup(d));
         });
 
+
         //Display pressure plate 
         //this.tpTiles.forEach(tp => {
             const l = new Lever(500,500, 1, this, null);
@@ -134,6 +135,9 @@ export default class TestScene extends Scene {
             this.pressurePlates.push(this.physics.add.staticGroup(l));
         //});
 
+        //Display tp 
+            const l2 = new Teleporter(800,500, 1, this);
+            this.teleporters.push(this.physics.add.staticGroup(l2));
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
