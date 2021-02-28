@@ -61,7 +61,6 @@ export default class Lever extends Phaser.GameObjects.Container {
                 this.objectSprite = this.scene.physics.add.sprite(0, 0, 'lever');
             }
         } else {
-            //console.log('pressure plate')
             this.objectSprite = this.scene.physics.add.sprite(0, 0, 'pressure_plate');
         }
         this.add(this.objectSprite);

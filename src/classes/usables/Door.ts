@@ -4,19 +4,21 @@ import { CustomProperties } from '../../helpers/CustomProperties';
 
 export default class Door extends Phaser.GameObjects.Container {
 
-    private _sprite: Phaser.GameObjects.Rectangle;
+    private _objectSprite: Phaser.Physics.Arcade.Sprite;
     private _opened: boolean;
     private _activators: number[];
     private _activationTime: number;
     private _indicatorDirection: string;
     private _indicators: Phaser.GameObjects.Rectangle[] = [];
+    private faceDoor: boolean;
 
-    constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
+    constructor(x: number, y: number, scene: Scene, properties: CustomProperties[], faceDoor: boolean) {
         super(scene, x, y)
         this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
         this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
         this._opened = false;
         this._indicatorDirection = Direction.NORTH;
+        this.faceDoor = faceDoor;
     }
 
     get opened(): boolean {
@@ -35,20 +37,31 @@ export default class Door extends Phaser.GameObjects.Container {
         return this._activationTime;
     }
 
-    get sprite(): Phaser.GameObjects.Rectangle {
-        return this._sprite;
+    get objectSprite(): Phaser.Physics.Arcade.Sprite {
+        return this._objectSprite;
     }
 
     public create(): void {
-        this._sprite = this.scene.add.rectangle(0, 0, 64, 64, 0xdede21).setOrigin(0.5, 0.5);
-        this.add(this._sprite)
-        this.setSize(32, 32);
+        if (isNaN(this._activators[0]))
+            this._activators = [];
+
+        if (this.faceDoor) {
+            this._objectSprite = this.scene.physics.add.sprite(0, 0, 'door_face', 0).setOrigin(0.5, 0.5);
+            this.setSize(64, 64);
+        }
+        else {
+            this.setSize(10, 64);
+            this._objectSprite = this.scene.physics.add.sprite(0, 0, 'door_side', 0).setOrigin(0.16, 0.5);
+            this.setX(this.x - 10)
+        }
+        this.add(this._objectSprite)
         this.setInteractive();
         this.createIndicators();
         this.scene.add.existing(this);
     }
 
     private createIndicators(): void {
+
         const tileSize = 64;
         const indicatorNum = this._activators.length;
         const offset = tileSize / (indicatorNum + 1);
@@ -91,11 +104,11 @@ export default class Door extends Phaser.GameObjects.Container {
 
     public open(): void {
         this._opened = true;
-        this.sprite.setFillStyle(0x00ff00);
+        //this.sprite.setFillStyle(0x00ff00);
     }
 
     public close(): void {
         this._opened = false;
-        this.sprite.setFillStyle(0xdede21);
+        //this.sprite.setFillStyle(0xdede21);
     }
 }

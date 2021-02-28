@@ -55,7 +55,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-2.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-3.json');
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -64,12 +64,16 @@ export default class TestScene extends Scene {
         this.load.spritesheet('end_stone', 'assets/images/objects/end.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('firebase', 'assets/images/objects/firebase.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('fire', 'assets/images/objects/fire.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.load.spritesheet('fireball', 'assets/images/objects/fireball.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.load.spritesheet('door_face', 'assets/images/objects/door_face_sprite.png', { frameWidth: 64, frameHeight: 64, endFrame: 0 })
+        this.load.spritesheet('door_side', 'assets/images/objects/door_side_sprite.png', { frameWidth: 32, frameHeight: 64, endFrame: 0 })
+        this.load.spritesheet('ghost', 'assets/images/player/ghost_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
+
+
 
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
         // Load Activator sprite
         this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
-        // Load Ghost sprite
-        this.load.image('ghost', '/assets/images/ghost.png');
 
         // Load Sounds
         this.load.audio('themeGame', 'assets/sounds/menu.wav');
@@ -83,7 +87,7 @@ export default class TestScene extends Scene {
 
         // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
-        const tiles = map.addTilesetImage('tileset', 'tiles');
+        const tiles = map.addTilesetImage('TileSet', 'tiles');
 
         // Display Map Layers 
         map.createLayer('Ground', tiles);
@@ -133,7 +137,7 @@ export default class TestScene extends Scene {
 
         // Display doors 
         this.doorTiles.forEach(door => {
-            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, this, door.properties);
+            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, this, door.properties, door.width === 64);
             d.create();
             this.doors.push(d);
         });

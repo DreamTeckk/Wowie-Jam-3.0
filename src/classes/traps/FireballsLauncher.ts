@@ -52,6 +52,8 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
+        if (isNaN(this._activators[0]))
+            this._activators = [];
         this.setSize(32, 32);
         this.createIndicators();
         this.scene.add.existing(this);
@@ -60,14 +62,21 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
             callback: () => {
                 if (this._isActivated) {
                     const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball')
-                    if (this._direction === Direction.SOUTH)
+                    if (this._direction === Direction.SOUTH) {
                         fireball.setVelocityY(300);
-                    if (this._direction === Direction.NORTH)
+                    }
+                    if (this._direction === Direction.NORTH) {
+                        fireball.setRotation(180)
                         fireball.setVelocityY(-300);
-                    if (this._direction === Direction.WEST)
+                    }
+                    if (this._direction === Direction.WEST) {
+                        fireball.setRotation(90)
                         fireball.setVelocityX(-300);
-                    if (this._direction === Direction.EAST)
+                    }
+                    if (this._direction === Direction.EAST) {
+                        fireball.setRotation(-90)
                         fireball.setVelocityX(300);
+                    }
                     this._fireballs.push(fireball)
                 }
             },
