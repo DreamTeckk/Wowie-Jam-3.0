@@ -1,14 +1,17 @@
 import { Scene } from 'phaser';
+import { CustomProperties } from '../../helpers/CustomProperties';
 
 export default class Door extends Phaser.GameObjects.Container {
 
     private _sprite: Phaser.GameObjects.Rectangle;
     private _opened: boolean;
-    private _activationPatern: number[];
+    private _activators: number[];
+    private _activationTime: number;
 
-    constructor(x: number, y: number, activationPatern: string, scene: Scene) {
+    constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y)
-        this._activationPatern = activationPatern.split('-').map(id => parseInt(id));
+        this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
+        this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
         this._opened = false;
     }
 
@@ -20,8 +23,12 @@ export default class Door extends Phaser.GameObjects.Container {
         this._opened = open;
     }
 
-    get activationPatern(): number[] {
-        return this._activationPatern;
+    get activators(): number[] {
+        return this._activators;
+    }
+
+    get activationTime(): number {
+        return this._activationTime;
     }
 
     get sprite(): Phaser.GameObjects.Rectangle {

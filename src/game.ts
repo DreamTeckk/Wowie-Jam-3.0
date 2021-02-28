@@ -3,10 +3,6 @@ import MenuScene from './scenes/MenuScene';
 import TestScene from './scenes/Test.scene';
 
 
-const height = window.innerHeight * devicePixelRatio;
-const width = window.innerWidth * devicePixelRatio;
-
-
 const gameConfig: Phaser.Types.Core.GameConfig = {
     title: 'TU MEURS TU GAGNES',
     type: Phaser.AUTO,
@@ -16,7 +12,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         width: 1200,
         height: 800,
     },
-    scene: [MenuScene, TestScene],
+    scene: [TestScene],
     physics: {
         default: 'arcade',
         arcade: {

@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { Direction } from '../../enums/direction';
+import { CustomProperties } from '../../helpers/CustomProperties';
 
 export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
@@ -10,18 +11,18 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     private _fireballs: Phaser.Physics.Arcade.Sprite[];
     // N E W S
     private _direction: string;
-    private _activationPatern: string[];
-    private _leverPatern: number[] = [];
+    private _activators: number[] = [];
+    private _activationTime: number;
 
-    constructor(x: number, y: number, scene: Scene, objectName: string) {
+    constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._activationPatern = objectName.split('-');
-        this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher')
-        this._fireballs = []
-        this._isActivated = this._activationPatern[this._activationPatern.length - 2] === 'T' ? true : false;
-        this._direction = this._activationPatern[this._activationPatern.length - 3];
-        this._leverPatern = this._activationPatern.slice(0, this._activationPatern.length - 3).map(v => parseInt(v));
+        this._assetLauncher = this.scene.physics.add.sprite(x, y, 'fireball_launcher');
+        this._fireballs = [];
+        this._isActivated = properties.filter(p => p.name === 'activated')[0].value as boolean;
+        this._direction = properties.filter(p => p.name === 'direction')[0].value as string;
+        this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
+        this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
     }
 
     get isActivated(): boolean {
@@ -40,12 +41,12 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         return this._fireballs
     }
 
-    get activationPatern(): string[] {
-        return this._activationPatern;
+    get activators(): number[] {
+        return this._activators;
     }
 
-    get leverPattern(): number[] {
-        return this._leverPatern;
+    get activationTime(): number {
+        return this._activationTime;
     }
 
     public create(): void {

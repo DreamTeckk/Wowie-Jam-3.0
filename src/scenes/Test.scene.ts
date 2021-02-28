@@ -20,7 +20,7 @@ export default class TestScene extends Scene {
     private player: Player;
     private lever: Lever;
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
-    private walls;
+    private walls: Phaser.Tilemaps.TilemapLayer;
     private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
     private ghost: Ghost;
     private doors: Door[] = [];
@@ -71,8 +71,6 @@ export default class TestScene extends Scene {
         this.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
         this.load.audio('door', 'assets/sounds/objects/door.wav');
         this.load.audio('fireball', 'assets/sounds/objects/fireball.wav');
-
-
     }
 
     public create(): void {
@@ -84,7 +82,6 @@ export default class TestScene extends Scene {
         // Display Map Layers 
         map.createLayer('Ground', tiles);
         map.createLayer('Spikes', tiles);
-        map.createLayer('Lava', tiles);
         this.walls = map.createLayer('Walls', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
@@ -107,28 +104,30 @@ export default class TestScene extends Scene {
 
         // Display teleporters
         this.tpTiles.forEach(tp => {
-            const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, parseInt(tp.name), this);
+            const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, this);
             this.teleporters.push(this.physics.add.staticGroup(l));
         });
 
         // Display levers
         this.leverTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, false);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, false, lever.properties);
             l.create();
             this.levers.push(this.physics.add.staticGroup(l));
         });
 
         // Display ghost
         this.leverGhostTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, parseInt(lever.name), this, true);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, true, lever.properties);
             l.create();
             this.leversGhost.push(this.physics.add.staticGroup(l).setVisible(false));
         });
 
         // Display doors 
         this.doorTiles.forEach(door => {
-            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, door.name, this);
+            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, this, door.properties);
             d.create();
+            console.log(d.activators);
+
             this.doors.push(d);
         });
 
@@ -142,14 +141,14 @@ export default class TestScene extends Scene {
 
         //Display pressure plate 
         //this.tpTiles.forEach(tp => {
-            const l = new Lever(500,500, 1, this, null);
-            l.create();
-            this.pressurePlates.push(this.physics.add.staticGroup(l));
+        //const l = new Lever(500, 500, this, null);
+        // l.create();
+        // this.pressurePlates.push(this.physics.add.staticGroup(l));
         //});
 
         //Display tp 
-            const l2 = new Teleporter(800,500, 1, this);
-            this.teleporters.push(this.physics.add.staticGroup(l2));
+        const l2 = new Teleporter(800, 500, this);
+        this.teleporters.push(this.physics.add.staticGroup(l2));
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
@@ -166,7 +165,7 @@ export default class TestScene extends Scene {
 
         // Display lauchers 
         this.fireballLaucherTiles.forEach(fl => {
-            const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.name);
+            const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.properties);
             l.create();
             this.physics.add.staticGroup(l)
             this.physics.add.collider(l, this.player.player)
@@ -177,7 +176,7 @@ export default class TestScene extends Scene {
 
         // Display fires 
         this.fireTiles.forEach(ft => {
-            const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this, ft.name);
+            const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this, ft.properties);
             f.create();
             this.physics.add.staticGroup(f)
             this.physics.add.overlap(f, this.player.player, () => {
@@ -229,7 +228,7 @@ export default class TestScene extends Scene {
                         //Play lever music
                         lever.playOpen()
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => {lever.isActivated = false, lever.playClose()});
+                        this.time.delayedCall(lever.activationTime, () => { lever.isActivated = false, lever.playClose() });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
@@ -250,7 +249,7 @@ export default class TestScene extends Scene {
                     //Play lever music
                     lever.playOpen()
                     // Deactivate the lever after x milliseconds
-                    this.time.delayedCall(lever.activationTime, () => {lever.isActivated = false; lever.playClose()});
+                    this.time.delayedCall(lever.activationTime, () => { lever.isActivated = false; lever.playClose() });
                     this.initDoorLogic(lever);
                     this.initFireBallLauncherLogic(lever)
                 }
@@ -277,7 +276,7 @@ export default class TestScene extends Scene {
                 // Deactivate the lever after x milliseconds
                 this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
                 this.initDoorLogic(lever);
-                this.initFireBallLauncherLogic(lever)   
+                this.initFireBallLauncherLogic(lever)
             })
         })
 
@@ -298,12 +297,12 @@ export default class TestScene extends Scene {
     }
 
     private initDoorLogic(lever: Lever): void {
-        this.doors.filter(door => door.activationPatern.includes(lever.id))
+        this.doors.filter(door => door.activators.includes(lever.id))
             .forEach(linkedDoor => {
                 // Get all levers requires to open the door.
                 const requiredLever = [
-                    ...this.levers.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedDoor.activationPatern.includes((l.children.entries[0] as Lever).id))
+                    ...this.levers.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedDoor.activators.includes((l.children.entries[0] as Lever).id))
                 ]
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
@@ -313,13 +312,13 @@ export default class TestScene extends Scene {
 
                     // Remove the door collider
                     this.doorColliders = this.doorColliders.filter(dc => {
-                        if ((dc.object2 as Door).activationPatern === linkedDoor.activationPatern) {
+                        if ((dc.object2 as Door).activators === linkedDoor.activators) {
                             this.physics.world.removeCollider(dc)
                         }
                         return dc;
                     })
                     // After delay we close the door and reaply the collider.
-                    this.time.delayedCall(10000, () => {
+                    this.time.delayedCall(linkedDoor.activationTime, () => {
                         linkedDoor.close();
                         this.doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
                     });
@@ -328,13 +327,13 @@ export default class TestScene extends Scene {
     }
 
     private initFireBallLauncherLogic(lever: Lever): void {
-        this.fireballLauchers.filter(fl => fl.leverPattern.includes(lever.id))
+        this.fireballLauchers.filter(fl => fl.activators.includes(lever.id))
             .forEach(linkedFl => {
                 // Get all levers requires to switch the launcher.
                 const requiredLever = [
-                    ...this.levers.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.pressurePlates.filter(l => linkedFl.leverPattern.includes((l.children.entries[0] as Lever).id))
+                    ...this.levers.filter(l => linkedFl.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedFl.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.pressurePlates.filter(l => linkedFl.activators.includes((l.children.entries[0] as Lever).id))
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
@@ -343,7 +342,7 @@ export default class TestScene extends Scene {
                     linkedFl.changeState();
 
                     // After delay we switch back the launchers
-                    this.time.delayedCall(parseInt(linkedFl.activationPatern[linkedFl.activationPatern.length - 1]) * 1000, () => {
+                    this.time.delayedCall(linkedFl.activationTime, () => {
                         linkedFl.changeState();
                     });
                 }
@@ -351,13 +350,13 @@ export default class TestScene extends Scene {
     }
 
     private initFireLogic(lever: Lever): void {
-        this.fires.filter(fire => fire.leverPattern.includes(lever.id))
+        this.fires.filter(fire => fire.activators.includes(lever.id))
             .forEach(linkedFires => {
                 // Get all levers requires to switch the launcher.
                 const requiredLever = [
-                    ...this.levers.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.leversGhost.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id)),
-                    ...this.pressurePlates.filter(l => linkedFires.leverPattern.includes((l.children.entries[0] as Lever).id))
+                    ...this.levers.filter(l => linkedFires.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.leversGhost.filter(l => linkedFires.activators.includes((l.children.entries[0] as Lever).id)),
+                    ...this.pressurePlates.filter(l => linkedFires.activators.includes((l.children.entries[0] as Lever).id))
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
@@ -366,7 +365,7 @@ export default class TestScene extends Scene {
                     linkedFires.changeState();
 
                     // After delay we switch back the launchers
-                    this.time.delayedCall(parseInt(linkedFires.activationPatern[linkedFires.activationPatern.length - 1]) * 1000, () => {
+                    this.time.delayedCall(linkedFires.activationTime, () => {
                         linkedFires.changeState();
                     });
                 }

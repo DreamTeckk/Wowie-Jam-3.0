@@ -1,20 +1,21 @@
 import { Scene } from 'phaser';
+import { CustomProperties } from '../../helpers/CustomProperties';
 export default class Fire extends Phaser.GameObjects.Container {
 
     private _isActivated: boolean;
     private _asset: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private _fireSprite: Phaser.GameObjects.Rectangle;
+    private _activationTime: number;
     // N E W S
-    private _activationPatern: string[];
-    private _leverPatern: number[] = [];
+    private _activators: number[] = [];
 
-    constructor(x: number, y: number, scene: Scene, objectName: string) {
+    constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
-        this._activationPatern = objectName.split('-');
         this._asset = this.scene.physics.add.sprite(x, y, 'fireball_launcher')
-        this._isActivated = this._activationPatern[this._activationPatern.length - 2] === 'T' ? true : false;
-        this._leverPatern = this._activationPatern.slice(0, this._activationPatern.length - 2).map(v => parseInt(v));
+        this._isActivated = properties.filter(p => p.name === 'activated')[0].value as boolean;
+        this._activators = (properties.filter(p => p.name === 'activators')[0].value as string).split('-').map(id => parseInt(id));
+        this._activationTime = properties.filter(p => p.name === 'activationTime')[0].value as number;
     }
 
     get isActivated(): boolean {
@@ -29,17 +30,15 @@ export default class Fire extends Phaser.GameObjects.Container {
         return this._asset;
     }
 
-    get activationPatern(): string[] {
-        return this._activationPatern;
+    get activators(): number[] {
+        return this._activators;
     }
 
-    get leverPattern(): number[] {
-        return this._leverPatern;
+    get activationTime(): number {
+        return this._activationTime;
     }
 
     public create(): void {
-        console.log(this._leverPatern);
-
         this._fireSprite = this.scene.add.rectangle(0, 0, 32, 32, 0xaa3333)
         this.add(this.scene.add.rectangle(0, 0, 32, 32, 0xFFaaaa));
         this.scene.add.existing(this);
