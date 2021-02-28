@@ -4,7 +4,7 @@
      "export":
         {
          "format":"json",
-         "target":"Wowie-Jam-3.0\/assets\/tilemaps\/level-1.json"
+         "target":"level-1.json"
         }
     },
  "height":100,
@@ -95,7 +95,7 @@
                         {
                          "name":"activators",
                          "type":"string",
-                         "value":"1-2"
+                         "value":"0-1"
                         }],
                  "rotation":0,
                  "type":"Fire",
@@ -146,7 +146,7 @@
                         {
                          "name":"activationTime",
                          "type":"int",
-                         "value":1000
+                         "value":10000
                         }, 
                         {
                          "name":"id",
