@@ -31,6 +31,7 @@ export default class TestScene extends Scene {
     private pressurePlates: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
     private musicButton: Phaser.GameObjects.Sprite;
+    private revived: boolean = false;
 
     /** Object Layer */
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -256,6 +257,7 @@ export default class TestScene extends Scene {
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
                         this.revive();
+                        this.revived = true;
                     }
                 }
             });
@@ -448,14 +450,18 @@ export default class TestScene extends Scene {
     }
 
     public revive(): void {
-        this.player.revive();
-        this.ghost.revive(this.player.player.x, this.player.player.y);
-        this.cameras.main.stopFollow();
-        this.cameras.main.startFollow(this.player.player);
-        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
-        this.leversGhost.forEach(element => element.setVisible(false));
-        this.invincible = true;
-        this.time.delayedCall(500, () => this.invincible = false, null, this);
+        if(!this.revived) {
+            this.player.revive();
+            this.ghost.revive(this.player.player.x, this.player.player.y);
+            this.cameras.main.stopFollow();
+            this.cameras.main.startFollow(this.player.player);
+            this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+            this.leversGhost.forEach(element => element.setVisible(false));
+            this.invincible = true;
+            this.time.delayedCall(500, () => this.invincible = false, null, this);
+        } else {
+            this.revived = false;
+        }
     }
 
     public reviveTeleport(): void {

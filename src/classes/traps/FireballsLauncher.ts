@@ -117,10 +117,14 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         }
     }
 
-    public desactivateIndicator(): void {
-        const lastOn = this._indicators.filter(indic => indic.fillColor === 0x34ebde).length;
-        if (lastOn)
-            this._indicators[lastOn - 1].setFillStyle(0x000000);
+    public desactivateIndicator(all: boolean = false): void {
+        if(all){
+            this._indicators.filter(indic => indic.fillColor === 0x34ebde).map(i => i.setFillStyle(0x000000));
+        } else {
+            const lastOn = this._indicators.filter(indic => indic.fillColor === 0x34ebde).length;
+            if(lastOn)
+                this._indicators[lastOn - 1].setFillStyle(0x000000);
+        }
     }
 
     public update(): void {
