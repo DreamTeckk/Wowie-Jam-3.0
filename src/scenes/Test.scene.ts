@@ -56,7 +56,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-1.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/DevMap.json');
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -89,6 +89,7 @@ export default class TestScene extends Scene {
         // Display Map Layers 
         map.createLayer('Ground', tiles);
         map.createLayer('Spikes', tiles);
+        //map.createLayer('Launchers', tiles);
         this.walls = map.createLayer('Walls', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
@@ -97,7 +98,7 @@ export default class TestScene extends Scene {
         this.startTile = map.getObjectLayer('Start') ? map.getObjectLayer('Start').objects[0] : null;
         this.endTile = map.getObjectLayer('End').objects ? map.getObjectLayer('End').objects[0] : null;
         this.spikeTiles = map.getObjectLayer('SpikesObject') ? map.getObjectLayer('SpikesObject').objects : null;
-        this.fireballLaucherTiles = map.getObjectLayer('Launchers') ? map.getObjectLayer('Launchers').objects : [];
+        this.fireballLaucherTiles = map.getObjectLayer('LaunchersObject') ? map.getObjectLayer('LaunchersObject').objects : [];
         this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
         this.add.existing(this.add.sprite(this.startTile.x, this.startTile.y, 'start_stone', 0));
