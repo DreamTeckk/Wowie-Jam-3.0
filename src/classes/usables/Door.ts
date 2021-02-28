@@ -7,6 +7,7 @@ export default class Door extends Phaser.GameObjects.Container {
     private _opened: boolean;
     private _activators: number[];
     private _activationTime: number;
+    private _sound: Phaser.Sound.BaseSound
 
     constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y)
@@ -36,6 +37,7 @@ export default class Door extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
+        this._sound = this.scene.sound.add('door')
         this._sprite = this.scene.add.rectangle(0, 0, 32, 32, 0xdede21).setOrigin(0.5, 0.5);
         this.add(this._sprite)
         this.setSize(32, 32);
@@ -48,6 +50,7 @@ export default class Door extends Phaser.GameObjects.Container {
     }
 
     public open(): void {
+        this._sound.play()
         this._opened = true;
         this.sprite.setFillStyle(0x00ff00);
     }

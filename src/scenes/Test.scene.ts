@@ -56,7 +56,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-1.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/DevMap.json');
 
         // Load Player sprite
         this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
@@ -147,9 +147,9 @@ export default class TestScene extends Scene {
         //});
 
         //Display tp 
-        const l2 = new Teleporter(800, 500, this);
+        /*const l2 = new Teleporter(800, 500, this);
         this.teleporters.push(this.physics.add.staticGroup(l2));
-        map.setCollisionBetween(1, 999, true, true, this.walls);
+        map.setCollisionBetween(1, 999, true, true, this.walls);*/
 
         // Register the Player
         this.player = new Player(this.startTile.x, this.startTile.y, this);
@@ -223,12 +223,12 @@ export default class TestScene extends Scene {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
                     if (!lever.isActivated) {
-                        // Activate the lever
-                        lever.isActivated = true;
                         //Play lever music
                         lever.playOpen()
+                        // Activate the lever
+                        lever.isActivated = true;
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => { lever.isActivated = false, lever.playClose() });
+                        this.time.delayedCall(lever.activationTime, () => { lever.playClose(); lever.isActivated = false; });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
@@ -244,14 +244,15 @@ export default class TestScene extends Scene {
             this.player.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
-                    // Activate the lever
-                    lever.isActivated = true;
                     //Play lever music
                     lever.playOpen()
+                    // Activate the lever
+                    lever.isActivated = true;
                     // Deactivate the lever after x milliseconds
-                    this.time.delayedCall(lever.activationTime, () => { lever.isActivated = false; lever.playClose() });
+                    this.time.delayedCall(lever.activationTime, () => { lever.playClose(); lever.isActivated = false; });
                     this.initDoorLogic(lever);
-                    this.initFireBallLauncherLogic(lever)
+                    this.initFireBallLauncherLogic(lever);
+                    this.initFireLogic(lever);
                 }
             })
         })
@@ -277,6 +278,7 @@ export default class TestScene extends Scene {
                 this.time.delayedCall(lever.activationTime, () => lever.isActivated = false);
                 this.initDoorLogic(lever);
                 this.initFireBallLauncherLogic(lever)
+                this.initFireLogic(lever);
             })
         })
 

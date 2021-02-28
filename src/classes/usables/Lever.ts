@@ -76,10 +76,12 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     public playOpen(): void {
-        this._sounds[0].play()
+        if(this._isActivated == false)
+            this._sounds[0].play()
     }
 
     public playClose(): void {
-        this._sounds[1].play()
+        if(this._isActivated == true)
+            this._sounds[1].play()
     }
 }
