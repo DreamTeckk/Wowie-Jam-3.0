@@ -178,7 +178,7 @@ export default class TestScene extends Scene {
             this.physics.add.staticGroup(l)
             this.physics.add.collider(l, this.player.player)
             this.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
-            this.physics.add.collider(this.player.player, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+            this.physics.add.overlap(this.player.player, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
             this.fireballLauchers.push(l);
         });
 
@@ -403,7 +403,7 @@ export default class TestScene extends Scene {
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         this.leversGhost.forEach(element => element.setVisible(false));
         this.invincible = true;
-        this.time.delayedCall(1000, () => this.invincible = false, null, this);
+        this.time.delayedCall(500, () => this.invincible = false, null, this);
     }
 
     public reviveTeleport(): void {
@@ -413,7 +413,7 @@ export default class TestScene extends Scene {
         this.cameras.main.startFollow(this.player.player);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         this.invincible = true;
-        this.time.delayedCall(1000, () => this.invincible = false, null, this);
+        this.time.delayedCall(500, () => this.invincible = false, null, this);
     }
 
     public nextMap(): void {

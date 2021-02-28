@@ -148,34 +148,40 @@ export default class Player extends Phaser.GameObjects.Container {
 
             if (this.player.body.velocity.x > 0) {
                 //console.log("x > 0");
-                this._player.setPosition(this.player.x - 10, this.player.y);
+                this._player.setPosition(this.player.x - 22, this.player.y);
             }
             if (this.player.body.velocity.y > 0) {
                 //console.log("y > 0");
-                this._player.setPosition(this.player.x, this.player.y - 10);
+                this._player.setPosition(this.player.x, this.player.y - 22);
             }
             if (this.player.body.velocity.x < 0) {
                 //console.log("x < 0");
-                this._player.setPosition(this.player.x + 10, this.player.y);
+                this._player.setPosition(this.player.x + 22, this.player.y);
             }
             if (this.player.body.velocity.y < 0) {
                 //console.log("y < 0");
-                this._player.setPosition(this.player.x, this.player.y + 10);
+                this._player.setPosition(this.player.x, this.player.y + 22);
             }
             this._player.setVelocityX(0);
             this._player.setVelocityY(0);
-            this._player.setActive(false).setVisible(false);
+            this._player.setActive(false)
         }
     }
 
     public revive(): void {
-        this._isAlive = true;
-        this._player.setActive(true).setVisible(true);
+        this.scene.time.delayedCall(500, () => {
+            this._isAlive = true;
+            this._player.setActive(true)
+        })
+        //this._isAlive = true;
+        //this._player.setActive(true).setVisible(true);
     }
 
     public reviveTeleport(x, y): void {
-        this.player.setActive(true).setVisible(true);
         this._player.setPosition(x, y);
-        this._isAlive = true;
+        this.scene.time.delayedCall(500, () => {
+            this._isAlive = true;
+            this.player.setActive(true)
+        })
     }
 }
