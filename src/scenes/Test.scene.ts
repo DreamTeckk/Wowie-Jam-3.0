@@ -88,12 +88,14 @@ export default class TestScene extends Scene {
 
         // Display Map Layers 
         map.createLayer('Ground', tiles);
+        map.createLayer('Props', tiles);
         map.createLayer('Spikes', tiles);
         //map.createLayer('Launchers', tiles);
         this.walls = map.createLayer('Walls', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
         this.leverGhostTiles = map.getObjectLayer('GhostLevers') ? map.getObjectLayer('GhostLevers').objects : [];
+        this.pressurePlateTiles = map.getObjectLayer('PressurePlates') ? map.getObjectLayer('PressurePlates').objects : [];
         this.tpTiles = map.getObjectLayer('Teleporters') ? map.getObjectLayer('Teleporters').objects : [];
         this.startTile = map.getObjectLayer('Start') ? map.getObjectLayer('Start').objects[0] : null;
         this.endTile = map.getObjectLayer('End').objects ? map.getObjectLayer('End').objects[0] : null;
@@ -146,11 +148,11 @@ export default class TestScene extends Scene {
 
 
         //Display pressure plate 
-        //this.tpTiles.forEach(tp => {
-        //const l = new Lever(500, 500, this, null);
-        // l.create();
-        // this.pressurePlates.push(this.physics.add.staticGroup(l));
-        //});
+        this.pressurePlateTiles.forEach(pp => {
+            const l = new Lever(pp.x + pp.width / 2, pp.y + pp.height / 2, this, null, pp.properties);
+            l.create();
+            this.pressurePlates.push(this.physics.add.staticGroup(l));
+        });
 
         //Display tp 
         const l2 = new Teleporter(800, 500, this);
