@@ -41,6 +41,8 @@ export default class Fire extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
+        if (isNaN(this._activators[0]))
+            this._activators = [];
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'firebase', 0);
         this.fire = this.scene.physics.add.sprite(0, 0, 'fire', 0);
         this.add(this._objectSprite);

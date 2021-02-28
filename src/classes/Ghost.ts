@@ -5,7 +5,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
     private _speed: number;
     private _isAlive: boolean;
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-    private _asset: Phaser.Types.Physics.Arcade.ImageWithDynamicBody
+    private _objectSprite: Phaser.Physics.Arcade.Sprite;
     private _itemsInRange: Phaser.Physics.Arcade.Body[] | Phaser.Physics.Arcade.StaticBody[];
     private _events: Phaser.Events.EventEmitter = new Phaser.Events.EventEmitter();
     private actionPressed: boolean;
@@ -17,7 +17,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
         this._speed = 300;
         this._isAlive = true;
         this._cursors = this.scene.input.keyboard.createCursorKeys();
-        this._asset = this.scene.physics.add.image(0, 0, 'ghost');
+        this._objectSprite = this.scene.physics.add.sprite(0, 0, 'ghost');
         this._debug = this.scene.add.text(16, 16, '');
         this.actionPressed = false;
         // this.scene.physics.add.overlap(this._asset, usableObjectsGroup, this.objectAction.bind(this))
@@ -27,33 +27,39 @@ export default class Ghost extends Phaser.GameObjects.Container {
         return this._events;
     }
 
-    get asset(): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
-        return this._asset;
+    get asset(): Phaser.Physics.Arcade.Sprite {
+        return this._objectSprite;
     }
 
     public create(): void {
-        this.add(this._asset);
+        this.add(this._objectSprite);
         this.scene.add.existing(this);
         this.asset.setActive(false).setVisible(false);
+        this.registerAnims();
     }
 
     public update(): void {
-        //this._debug.text = 'Velocity : '+ this._asset.body.velocity.length() + ' | Speed : ' + this._asset.body.speed + ' | Acceleration : ' + this._asset.body.acceleration.length() 
         if (this._cursors.up.isDown) {
-            this._asset.setVelocityY(-this._speed);
+            this._objectSprite.setVelocityY(-this._speed);
             this._itemsInRange;
         } else if (this._cursors.down.isDown) {
-            this._asset.setVelocityY(this._speed);
+            this._objectSprite.setVelocityY(this._speed);
         } else {
-            this._asset.setVelocityY(0);
+            this._objectSprite.setVelocityY(0);
         }
 
         if (this._cursors.left.isDown) {
-            this._asset.setVelocityX(-this._speed);
+            this._objectSprite.setVelocityX(-this._speed);
+            if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'ghost_run_left')
+                this._objectSprite.play('ghost_run_left');
         } else if (this._cursors.right.isDown) {
-            this._asset.setVelocityX(this._speed);
+            this._objectSprite.setVelocityX(this._speed);
+            if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'ghost_run_right')
+                this._objectSprite.play('ghost_run_right');
         } else {
-            this._asset.setVelocityX(0);
+            this._objectSprite.setVelocityX(0);
+            if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'ghost_run_left')
+                this._objectSprite.play('ghost_run_left');
         }
 
         if (this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
@@ -68,20 +74,38 @@ export default class Ghost extends Phaser.GameObjects.Container {
         }
     }
 
-    public death(x, y): void {
-        this.asset.setActive(true).setVisible(true);
-        this._asset.setPosition(x, y);
+    public death(x: number, y: number): void {
+        this._objectSprite.setActive(true).setVisible(true);
+        this._objectSprite.setPosition(x, y);
         this._isAlive = false;
     }
 
-    public revive(x, y): void {
-        this.asset.setActive(false).setVisible(false);
-        this._asset.setPosition(x, y);
+    public revive(x: number, y: number): void {
+        this._objectSprite.setActive(false).setVisible(false);
+        this._objectSprite.setPosition(x, y);
         this._isAlive = true;
     }
 
     public reviveTeleport(): void {
         this._isAlive = true;
-        this._asset.setActive(false).setVisible(false);
+        this._objectSprite.setActive(false).setVisible(false);
+    }
+
+    public registerAnims(): void {
+        const leverActivateAnim: Phaser.Types.Animations.Animation = {
+            key: 'ghost_run_left',
+            frames: this.scene.anims.generateFrameNumbers('ghost', { start: 4, end: 7, first: 4 }),
+            frameRate: 12,
+            repeat: -1
+        };
+        const leverGhostActivateAnim: Phaser.Types.Animations.Animation = {
+            key: 'ghost_run_right',
+            frames: this.scene.anims.generateFrameNumbers('ghost', { start: 0, end: 3, first: 0 }),
+            frameRate: 12,
+            repeat: -1
+        }
+
+        this.scene.anims.create(leverActivateAnim);
+        this.scene.anims.create(leverGhostActivateAnim);
     }
 }
