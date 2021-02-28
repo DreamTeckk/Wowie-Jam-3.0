@@ -18,7 +18,6 @@ import End from '../classes/usables/End';
 export default class TestScene extends Scene {
 
     private player: Player;
-    private lever: Lever;
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
     private walls: Phaser.Tilemaps.TilemapLayer;
     private teleporters: Phaser.Physics.Arcade.StaticGroup[] = [];
@@ -56,7 +55,7 @@ export default class TestScene extends Scene {
     public preload(): void {
         //Load Tiles & TileMap
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/DevMap.json');
+        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level-2.json');
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -84,12 +83,12 @@ export default class TestScene extends Scene {
 
         // Create the TileMap
         const map = this.make.tilemap({ key: 'testmap' })
-        const tiles = map.addTilesetImage('TileSet', 'tiles');
+        const tiles = map.addTilesetImage('tileset', 'tiles');
 
         // Display Map Layers 
         map.createLayer('Ground', tiles);
         map.createLayer('Spikes', tiles);
-        //map.createLayer('Launchers', tiles);
+        map.createLayer('Launchers', tiles);
         this.walls = map.createLayer('Walls', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
@@ -192,6 +191,8 @@ export default class TestScene extends Scene {
             this.fires.push(f);
         });
 
+        this.player.draw();
+
         // Register the Ghost
         this.ghost = new Ghost(this.player.x, this.player.y, this);
         this.ghost.create();
@@ -234,7 +235,10 @@ export default class TestScene extends Scene {
                         //Play lever music
                         lever.playOpen()
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => lever.changeState());
+                        this.time.delayedCall(lever.activationTime, () => {
+                            this.desactivateIndicators(lever);
+                            lever.changeState()
+                        });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
@@ -253,7 +257,10 @@ export default class TestScene extends Scene {
                         // Activate the lever
                         lever.changeState();
                         // Deactivate the lever after x milliseconds
-                        this.time.delayedCall(lever.activationTime, () => lever.changeState());
+                        this.time.delayedCall(lever.activationTime, () => {
+                            this.desactivateIndicators(lever);
+                            lever.changeState()
+                        });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever)
                         this.initFireLogic(lever);
@@ -313,6 +320,7 @@ export default class TestScene extends Scene {
                 ]
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                linkedDoor.activateIndicator(activatedLeversLength);
                 if (!linkedDoor.opened && requiredLever.length === activatedLeversLength) {
                     // Open all the linked doors
                     linkedDoor.open();
@@ -344,6 +352,7 @@ export default class TestScene extends Scene {
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                linkedFl.activateIndicator(activatedLeversLength);
                 if (requiredLever.length === activatedLeversLength) {
                     // Activate all the launcher
                     linkedFl.changeState();
@@ -367,6 +376,7 @@ export default class TestScene extends Scene {
                 ];
                 // Get the numbers of these levers that are activated
                 const activatedLeversLength = requiredLever.filter(l => (l.children.entries[0] as Lever).isActivated).length;
+                linkedFires.activateIndicator(activatedLeversLength);
                 if (requiredLever.length === activatedLeversLength) {
                     // Activate all the launcher
                     linkedFires.changeState();
@@ -377,6 +387,12 @@ export default class TestScene extends Scene {
                     });
                 }
             })
+    }
+
+    private desactivateIndicators(lever): void {
+        this.doors.filter(door => door.activators.includes(lever.id)).forEach(door => door.desactivateIndicator());
+        this.fires.filter(fire => fire.activators.includes(lever.id)).forEach(fire => fire.desactivateIndicator());
+        this.fireballLauchers.filter(fl => fl.activators.includes(lever.id)).forEach(fl => fl.desactivateIndicator());
     }
 
     public death(): void {
