@@ -42,7 +42,7 @@ export default class Fire extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-        this.sound = this.scene.sound.add('fire', { volume: 0.3, loop: true });
+        this.sound = this.scene.sound.add('fire', { volume: 0.2, loop: true });
         if (isNaN(this._activators[0]))
             this._activators = [];
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'firebase', 0);

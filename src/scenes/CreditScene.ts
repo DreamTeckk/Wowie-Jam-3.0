@@ -17,6 +17,7 @@ export default class CreditScene extends Phaser.Scene {
             'assets/sounds/menu.wav'
         ]);
         this.load.audio('themeGame', 'assets/sounds/gameTheme.mp3');
+        this.load.image('credit', 'assets/images/ui/credits.png');
 
     }
     /**
@@ -29,7 +30,8 @@ export default class CreditScene extends Phaser.Scene {
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
         const music = this.sound.add('themeMenu', { loop: true, volume: 0.2 });
         music.play();
-        const backButton = this.add.sprite(this.game.config.width as integer / 2, this.game.config.height as integer / 2, 'play_button').setInteractive()
+        this.add.image(0, -100, 'credit').setOrigin(0, 0);
+        const backButton = this.add.sprite(this.game.config.width as integer / 2, this.game.config.height as integer - 110, 'play_button').setInteractive()
 
         backButton.on('pointerover', () => {
             backButton.setFrame(1);
@@ -44,7 +46,6 @@ export default class CreditScene extends Phaser.Scene {
                 this.scene.start('menuScene')
             })
         })
-
     }
 
     /**

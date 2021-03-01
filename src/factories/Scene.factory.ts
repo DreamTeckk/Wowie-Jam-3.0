@@ -503,8 +503,11 @@ export default class SceneFactory {
 
     public nextMap(): void {
         this.scene.game.registry.inc('idLevel', 1)
-        console.log(`level-${this.scene.registry.get('idLevel')}`);
         this.levelUpSound.play();
-        this.scene.scene.start(`level-${this.scene.registry.get('idLevel')}`);
+        if (this.scene.registry.get('idLevel') === 9) {
+            this.scene.scene.start(`end`);
+        } else {
+            this.scene.scene.start(`level-${this.scene.registry.get('idLevel')}`);
+        }
     }
 }

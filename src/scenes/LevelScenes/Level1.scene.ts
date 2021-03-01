@@ -21,6 +21,14 @@ export default class Level1Scene extends Scene {
 
     public create(): void {
         this.sceneFactory.create();
+        this.add.text(850, 2180, 'Welcome to "To Die or Not Today"', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(850, 2210, 'Use Arrows to move and Space to interact', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1300, 2180, 'In front of you are traps, if you touch them you will die...', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1300, 2210, '...But your ghost might be able to go trough doors', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1840, 2180, '<-- This is the end of a level', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1870, 2210, 'but you cannot reach it as a ghost', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1950, 2065, 'This is a teleporter -->', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
+        this.add.text(1950, 2095, 'Try pressing "Space" on it', { fontFamily: 'Arial', fontSize: '16px', color: '#000000' });
     }
     /**
      * @param {number} time The current time. Either a High Resolution Timer value if it comes 
