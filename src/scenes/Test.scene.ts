@@ -17,6 +17,8 @@ import End from '../classes/usables/End';
 
 export default class TestScene extends Scene {
 
+    private idLevel: number
+
     private player: Player;
     private leverList: Lever[] = [];
     private spikes: Phaser.Physics.Arcade.StaticGroup[] = [];
@@ -57,8 +59,11 @@ export default class TestScene extends Scene {
 
     public preload(): void {
         //Load Tiles & TileMap
+        this.idLevel = this.game.registry.get('idLevel')
+
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/level_a.json');
+        this.load.tilemapTiledJSON(`level${this.idLevel}`, `assets/tilemaps/levelL-${this.idLevel}.json`);
+        console.log(`assets/tilemaps/levelL-${this.idLevel}.json`)
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
@@ -91,7 +96,7 @@ export default class TestScene extends Scene {
     public create(): void {
 
         // Create the TileMap
-        const map = this.make.tilemap({ key: 'testmap' })
+        const map = this.make.tilemap({ key: `level${this.idLevel}` })
         const tiles = map.addTilesetImage('TileSet', 'tiles');
 
         // Display Map Layers 
@@ -494,7 +499,8 @@ export default class TestScene extends Scene {
     }
 
     public nextMap(): void {
+        this.game.registry.inc('idLevel',1)
         this.music.stop()
-        this.scene.start('tmpScene');
+        this.scene.restart();
     }
 }

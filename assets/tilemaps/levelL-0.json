@@ -114,6 +114,11 @@
                          "value":"S"
                         }, 
                         {
+                         "name":"fireRate",
+                         "type":"int",
+                         "value":400
+                        }, 
+                        {
                          "name":"indicatorDirection",
                          "type":"string",
                          "value":"N"
@@ -150,6 +155,11 @@
                          "name":"direction",
                          "type":"string",
                          "value":"S"
+                        }, 
+                        {
+                         "name":"fireRate",
+                         "type":"int",
+                         "value":400
                         }, 
                         {
                          "name":"indicatorDirection",
@@ -190,6 +200,11 @@
                          "value":"S"
                         }, 
                         {
+                         "name":"fireRate",
+                         "type":"int",
+                         "value":400
+                        }, 
+                        {
                          "name":"indicatorDirection",
                          "type":"string",
                          "value":"N"
@@ -228,6 +243,11 @@
                          "value":"S"
                         }, 
                         {
+                         "name":"fireRate",
+                         "type":"int",
+                         "value":400
+                        }, 
+                        {
                          "name":"indicatorDirection",
                          "type":"string",
                          "value":"N"
@@ -264,6 +284,11 @@
                          "name":"direction",
                          "type":"string",
                          "value":"S"
+                        }, 
+                        {
+                         "name":"fireRate",
+                         "type":"int",
+                         "value":400
                         }, 
                         {
                          "name":"indicatorDirection",
