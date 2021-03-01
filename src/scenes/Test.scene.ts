@@ -33,7 +33,7 @@ export default class TestScene extends Scene {
     private pressurePlates: Phaser.Physics.Arcade.StaticGroup[] = [];
     private invincible = false;
     private musicButton: Phaser.GameObjects.Sprite;
-    private revived: boolean = false;
+    private revived = false;
 
     /** Object Layer */
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -113,7 +113,7 @@ export default class TestScene extends Scene {
         this.tpTiles = map.getObjectLayer('Teleporters') ? map.getObjectLayer('Teleporters').objects : [];
         this.startTile = map.getObjectLayer('Start') ? map.getObjectLayer('Start').objects[0] : null;
         this.endTile = map.getObjectLayer('End').objects ? map.getObjectLayer('End').objects[0] : null;
-        this.spikeTiles = map.getObjectLayer('SpikesObject') ? map.getObjectLayer('SpikesObject').objects : null;
+        this.spikeTiles = map.getObjectLayer('SpikesObject') ? map.getObjectLayer('SpikesObject').objects : [];
         this.fireballLaucherTiles = map.getObjectLayer('LaunchersObject') ? map.getObjectLayer('LaunchersObject').objects : [];
         this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
@@ -170,7 +170,7 @@ export default class TestScene extends Scene {
         });
 
         //Display tp 
-        
+
         //const l2 = new Teleporter(800, 500, this);
         //this.teleporters.push(this.physics.add.staticGroup(l2));
         //map.setCollisionBetween(1, 999, true, true, this.walls);
@@ -253,7 +253,7 @@ export default class TestScene extends Scene {
                         lever.changeState();
                         lever.desactivators.forEach(des => {
                             this.leverList.forEach(lev => {
-                                if(lev.id == des && lev.isActivated) {
+                                if (lev.id == des && lev.isActivated) {
                                     lev.changeState();
                                     lever.changeState();
                                 }
@@ -262,11 +262,11 @@ export default class TestScene extends Scene {
                         //Play lever music
                         lever.playOpen()
                         // Deactivate the lever after x milliseconds
-                        if(lever.activationTime != 0)
+                        if (lever.activationTime != 0)
                             this.time.delayedCall(lever.activationTime, () => {
                                 this.desactivateIndicators(lever);
                                 lever.changeState()
-                        });
+                            });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever);
                         this.initFireLogic(lever);
@@ -287,22 +287,22 @@ export default class TestScene extends Scene {
                         lever.changeState();
                         lever.desactivators.forEach(des => {
                             this.leverList.forEach(lev => {
-                                if(lev.id == des && lev.isActivated) {
+                                if (lev.id == des && lev.isActivated) {
                                     lev.changeState();
                                     lever.changeState();
                                 }
                             });
                         });
                         // Deactivate the lever after x milliseconds
-                        if(lever.activationTime != 0)
+                        if (lever.activationTime != 0)
                             this.time.delayedCall(lever.activationTime, () => {
                                 this.desactivateIndicators(lever);
                                 lever.changeState()
                             });
                         this.initDoorLogic(lever);
                         this.initFireBallLauncherLogic(lever)
-                        this.initFireLogic(lever);      
-                    } else if(lever.activationTime == 0) {
+                        this.initFireLogic(lever);
+                    } else if (lever.activationTime == 0) {
                         lever.changeState();
                     }
                 }
@@ -328,34 +328,34 @@ export default class TestScene extends Scene {
                     // Activate the lever
                     lever.changeState();
                     // Deactivate the lever after x milliseconds
-                    if(lever.activationTime != 0)
-                            this.time.delayedCall(lever.activationTime, () => {
-                                this.desactivateIndicators(lever);
-                                lever.changeState()
-                            });
+                    if (lever.activationTime != 0)
+                        this.time.delayedCall(lever.activationTime, () => {
+                            this.desactivateIndicators(lever);
+                            lever.changeState()
+                        });
                     this.initDoorLogic(lever);
                     this.initFireBallLauncherLogic(lever);
                     this.initFireLogic(lever);
-                }else if(lever.activationTime == 0) {
+                } else if (lever.activationTime == 0) {
                     lever.changeState();
                 }
             })
         })
 
         //SOUND AFFECTATION
-        this.music = this.sound.add('themeGame', {loop: true, volume: 0.1});
+        this.music = this.sound.add('themeGame', { loop: true, volume: 0.1 });
         this.music.play();
 
         //Create the music button
-        this.musicButton = this.add.sprite(1090, 75, 'musicButton').setOrigin(1,0).setInteractive().setScrollFactor(0)
+        this.musicButton = this.add.sprite(1090, 75, 'musicButton').setOrigin(1, 0).setInteractive().setScrollFactor(0)
         this.musicButton.on('pointerdown', () => {
-            if(this.music.isPaused) {
+            if (this.music.isPaused) {
                 this.music.play();
                 this.musicButton.setFrame(0);
             } else {
                 this.music.pause();
                 this.musicButton.setFrame(1);
-            }   
+            }
         }, this);
 
         this.add.existing(this.musicButton);
@@ -474,7 +474,7 @@ export default class TestScene extends Scene {
     }
 
     public revive(): void {
-        if(!this.revived) {
+        if (!this.revived) {
             this.player.revive();
             this.ghost.revive(this.player.player.x, this.player.player.y);
             this.cameras.main.stopFollow();
@@ -499,8 +499,10 @@ export default class TestScene extends Scene {
     }
 
     public nextMap(): void {
-        this.game.registry.inc('idLevel',1)
-        this.music.stop()
-        this.scene.restart();
+        this.game.registry.inc('idLevel', 1)
+        this.music.stop();
+        console.log('go scene 2');
+
+        this.scene.start('test2');
     }
 }

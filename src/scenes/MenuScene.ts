@@ -1,16 +1,11 @@
 const config: Phaser.Types.Scenes.SettingsConfig = {
     key: 'menuScene', // The key to provide to Phaser whene you want to change scene to this one
-    visible: false, 
+    visible: false,
     active: false // Defines if the Scene is active or not.
 }
 
-import { Scene } from 'phaser';
-import TestScene from './Test.scene'
-import Ghost from '../classes/Ghost'
-
-
 export default class MenuScene extends Phaser.Scene {
-    
+
     constructor() {
         super(config)
     }
@@ -21,17 +16,17 @@ export default class MenuScene extends Phaser.Scene {
             'assets/sounds/menu.wav'
         ]);
     }
-        /**
-         *  The preload() method is used to load all the assets before the game starts.
-         *  It's used to prevent the game to start with missing or unload images, spritesheets, etc.. 
-         */
-    
+    /**
+     *  The preload() method is used to load all the assets before the game starts.
+     *  It's used to prevent the game to start with missing or unload images, spritesheets, etc.. 
+     */
+
 
     public create(): void {
         this.game.registry.set('idLevel', 0);
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
-        let music = this.sound.add('themeMenu');
-        let playButton = this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2, 'PlayButton').setInteractive()
+        const music = this.sound.add('themeMenu');
+        const playButton = this.add.image(this.game.config.width as integer / 2, this.game.config.height as integer / 2, 'PlayButton').setInteractive()
         playButton.once('pointerdown', () => {
             //console.log(this)
             music.stop()
