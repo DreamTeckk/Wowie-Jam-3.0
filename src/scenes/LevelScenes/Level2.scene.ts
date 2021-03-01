@@ -1,5 +1,5 @@
 const config: Phaser.Types.Scenes.SettingsConfig = {
-    key: 'level-4', // The key to provide to Phaser whene you want to change scene to this one
+    key: 'level-2', // The key to provide to Phaser whene you want to change scene to this one
     visible: false,
     active: false // Defines if the Scene is active or not.
 }
