@@ -22,7 +22,7 @@ export default class Teleporter extends Phaser.GameObjects.Container {
         this.registerAnimations();
         this.setSize(32, 32);
         this.setInteractive();
-        this.sound = this.scene.sound.add('teleporter', { volume: 0.3 });
+        this.sound = this.scene.sound.add('teleportation', { volume: 0.3 });
         this.scene.add.existing(this);
     }
 
