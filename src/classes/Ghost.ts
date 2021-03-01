@@ -33,6 +33,8 @@ export default class Ghost extends Phaser.GameObjects.Container {
 
     public create(): void {
         this.add(this._objectSprite);
+        this._objectSprite.setSize(14, 7);
+        this._objectSprite.setOffset(6, 25);
         this.scene.add.existing(this);
         this.asset.setActive(false).setVisible(false);
         this.registerAnims();

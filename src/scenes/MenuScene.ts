@@ -13,6 +13,7 @@ export default class MenuScene extends Phaser.Scene {
     public preload(): void {
         this.load.spritesheet('play_button', 'assets/images/ui/play_button.png', { frameWidth: 310, frameHeight: 116, endFrame: 2 });
         this.load.spritesheet('credits_button', 'assets/images/ui/credits_button.png', { frameWidth: 310, frameHeight: 116, endFrame: 2 });
+        this.load.spritesheet('title', 'assets/images/ui/title.png', { frameWidth: 870, frameHeight: 360, endFrame: 0 });
         this.load.image('backgrondMainMenu', 'assets/images/backgrondMainMenu.png');
         this.load.audio('themeMenu', [
             'assets/sounds/menu.wav'
@@ -27,12 +28,13 @@ export default class MenuScene extends Phaser.Scene {
 
 
     public create(): void {
-        this.game.registry.set('idLevel', 3);
+        this.game.registry.set('idLevel', 1);
         //this.add.image(this.game.config.width as integer/2, this.game.config.height as integer/2,'backgrondMainMenu')
         const music = this.sound.add('themeMenu', { loop: true, volume: 0.2 });
         music.play();
         const playButton = this.add.sprite(this.game.config.width as integer / 2, this.game.config.height as integer / 2, 'play_button').setInteractive()
         const creditsButton = this.add.sprite(this.game.config.width as integer / 2, this.game.config.height as integer / 2 + 150, 'credits_button').setInteractive()
+        this.add.sprite(this.game.config.width as integer / 2, 200, 'title')
         playButton.on('pointerover', () => {
             playButton.setFrame(1);
         });

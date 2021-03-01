@@ -56,8 +56,9 @@ export default class Player extends Phaser.GameObjects.Container {
 
     public create(): void {
 
-        this.setSize(24, 24);
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'player');
+        this._objectSprite.setSize(14, 7);
+        this._objectSprite.setOffset(6, 25);
         this._objectSprite.setMaxVelocity(this._speed);
         this._cursors = this.scene.input.keyboard.createCursorKeys();
         this.registerAnims();

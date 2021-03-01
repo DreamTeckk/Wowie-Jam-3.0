@@ -44,11 +44,11 @@ export default class Fire extends Phaser.GameObjects.Container {
         if (isNaN(this._activators[0]))
             this._activators = [];
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'firebase', 0);
-        this.fire = this.scene.physics.add.sprite(0, 0, 'fire', 0);
-        this.add(this._objectSprite);
         this.registerAnims();
+        this.fire = this.scene.physics.add.sprite(0, 0, 'fire', 0);
+        this.fire.anims.play('fire');
+        this.add(this._objectSprite);
         if (this._isActivated) {
-            this.fire.anims.play('fire');
             this.add(this.fire)
         }
         this.scene.add.existing(this);
@@ -119,7 +119,7 @@ export default class Fire extends Phaser.GameObjects.Container {
             key: 'fire',
             frames: this.scene.anims.generateFrameNumbers('fire', { start: 0, end: 7, first: 0 }),
             frameRate: 12,
-            repeat: 0
+            repeat: -1
         };
         this.scene.anims.create(fireAnimation);
     }

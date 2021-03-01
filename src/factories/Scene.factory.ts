@@ -30,6 +30,7 @@ export default class SceneFactory {
     private invincible = false;
     private musicButton: Phaser.GameObjects.Sprite;
     private revived = false;
+    private levelUpSound: Phaser.Sound.BaseSound;
 
     /** Object Layer */
     private spikeTiles: Phaser.Types.Tilemaps.TiledObject[];
@@ -93,9 +94,12 @@ export default class SceneFactory {
         this.scene.load.audio('door', 'assets/sounds/objects/door.wav');
         this.scene.load.audio('death', 'assets/sounds/death.wav');
         this.scene.load.audio('revive', 'assets/sounds/revive.mp3');
+        this.scene.load.audio('levelup', 'assets/sounds/level-up.wav');
     }
 
     public create(): void {
+
+        this.levelUpSound = this.scene.sound.add('levelup', { volume: 0.2 });
         // Create the TileMap
         const map = this.scene.make.tilemap({ key: `level${this.idLevel}` })
         const tiles = map.addTilesetImage('TileSet', 'tiles');
@@ -103,9 +107,9 @@ export default class SceneFactory {
         // Display Map Layers 
         map.createLayer('Underground', tiles);
         map.createLayer('Ground', tiles);
-        map.createLayer('Props', tiles);
         map.createLayer('Spikes', tiles);
         this.walls = map.createLayer('Walls', tiles);
+        map.createLayer('Props', tiles);
         map.createLayer('Launchers', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
@@ -118,7 +122,7 @@ export default class SceneFactory {
         this.fireballLaucherTiles = map.getObjectLayer('LaunchersObject') ? map.getObjectLayer('LaunchersObject').objects : [];
         this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
-        this.scene.add.existing(this.scene.add.sprite(this.startTile.x, this.startTile.y, 'start_stone', 0));
+        this.scene.add.existing(this.scene.add.sprite(this.startTile.x + this.startTile.width / 2, this.startTile.y - this.startTile.height / 2, 'start_stone', 0));
         //this.scene.add.existing(this.scene.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
         //this.scene.add.existing()
 
@@ -178,7 +182,7 @@ export default class SceneFactory {
         //map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
-        this.player = new Player(this.startTile.x, this.startTile.y, this.scene);
+        this.player = new Player(this.startTile.x + this.startTile.width / 2 + 5, this.startTile.y - this.startTile.height / 2 - 15, this.scene);
         this.player.create();
 
         this.scene.cameras.main.setZoom(1.2, 1.2);
@@ -499,8 +503,7 @@ export default class SceneFactory {
     public nextMap(): void {
         this.scene.game.registry.inc('idLevel', 1)
         console.log(`level-${this.scene.registry.get('idLevel')}`);
-
+        this.levelUpSound.play();
         this.scene.scene.start(`level-${this.scene.registry.get('idLevel')}`);
-        //this.scene.scene.start(`level-2`);
     }
 }

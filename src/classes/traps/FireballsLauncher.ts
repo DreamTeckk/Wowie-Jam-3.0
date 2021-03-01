@@ -65,7 +65,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         this.setSize(32, 32);
         this.createIndicators();
         this.registerAnims();
-        this.sound = this.scene.sound.add('fireballLauncher', { volume: 0.3 });
+        this.sound = this.scene.sound.add('fireballLauncher', { volume: 0.05 });
         this.scene.add.existing(this);
         this.scene.time.addEvent({
             delay: this._fireRate,
@@ -79,7 +79,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
                         fireball.setVelocityY(300);
                     }
                     if (this._direction === Direction.NORTH) {
-                        fireball.setRotation(-180)
+                        fireball.setRotation(180)
                         fireball.setVelocityY(-300);
                     }
                     if (this._direction === Direction.WEST) {
