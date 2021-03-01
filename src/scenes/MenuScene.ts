@@ -60,7 +60,8 @@ export default class MenuScene extends Phaser.Scene {
         creditsButton.once('pointerdown', () => {
             creditsButton.setFrame(2)
             creditsButton.once('pointerup', () => {
-                this.scene.start('level-1')
+                music.stop()
+                this.scene.start('creditScene')
             })
         })
 

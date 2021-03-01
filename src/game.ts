@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import MenuScene from './scenes/MenuScene';
+import CreditScene from './scenes/CreditScene';
 import Level1Scene from './scenes/LevelScenes/Level1.scene';
 import Level2Scene from './scenes/LevelScenes/Level2.scene';
 import Level3Scene from './scenes/LevelScenes/Level3.scene';
@@ -27,7 +28,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         width: 1200,
         height: 800,
     },
-    scene: [MenuScene, ...levelScenes],
+    scene: [MenuScene, CreditScene, ...levelScenes],
     physics: {
         default: 'arcade',
         arcade: {
