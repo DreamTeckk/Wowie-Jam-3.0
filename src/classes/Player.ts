@@ -1,5 +1,5 @@
 import { Vector } from 'matter';
-import { GameObjects, Physics, Scene } from 'phaser';
+import { Scene } from 'phaser';
 
 
 /**
@@ -10,14 +10,14 @@ import { GameObjects, Physics, Scene } from 'phaser';
 export default class Player extends Phaser.GameObjects.Container {
 
     private _isAlive: boolean;
-    private cursor: Phaser.Types.Input.Keyboard.CursorKeys;
+    private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     private xPos: number;
     private yPos: number;
-    private _player: Physics.Arcade.Sprite;
+    private _objectSprite: Phaser.Physics.Arcade.Sprite;
     private actionPressed: boolean
     private _events: Phaser.Events.EventEmitter = new Phaser.Events.EventEmitter();
 
-    private playerSpeed: number;
+    private _speed: number;
     private idle;
 
     private playerVelocity: Vector;
@@ -27,7 +27,7 @@ export default class Player extends Phaser.GameObjects.Container {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
 
         this._isAlive = true;
-        this.playerSpeed = 300;
+        this._speed = 300;
         this.idle = true;
         this.xPos = x;
         this.yPos = y;
@@ -44,8 +44,8 @@ export default class Player extends Phaser.GameObjects.Container {
         this._isAlive = value;
     }
 
-    get player(): Phaser.GameObjects.Sprite {
-        return this._player
+    get objectSprite(): Phaser.GameObjects.Sprite {
+        return this._objectSprite
     }
 
     get events(): Phaser.Events.EventEmitter {
@@ -54,82 +54,52 @@ export default class Player extends Phaser.GameObjects.Container {
 
     public create(): void {
 
-        this.setSize(32, 32);
-        this._player = this.scene.physics.add.sprite(0, 0, 'player');
-
-        this._player.setMaxVelocity(this.playerSpeed);
-
-        this.cursor = this.scene.input.keyboard.createCursorKeys();
-
-        this.scene.anims.create({
-            key: 'left',
-            frames: this.scene.anims.generateFrameNumbers('player', { start: 0, end: 1 }),
-            frameRate: 4,
-            repeat: -1
-        });
-
-        this.scene.anims.create({
-            key: 'turn',
-            frames: [{ key: 'player', frame: 0 }],
-            frameRate: 4
-        });
-
-        this.scene.anims.create({
-            key: 'idle',
-            frames: [{ key: 'player', frame: 0 }],
-            frameRate: 4
-        });
-
-        this.scene.anims.create({
-            key: 'right',
-            frames: this.scene.anims.generateFrameNumbers('player', { start: 2, end: 3 }),
-            frameRate: 4,
-            repeat: -1
-        });
-
+        this.setSize(24, 24);
+        this._objectSprite = this.scene.physics.add.sprite(0, 0, 'player');
+        this._objectSprite.setMaxVelocity(this._speed);
+        this._cursors = this.scene.input.keyboard.createCursorKeys();
+        this.registerAnims();
         this.scene.add.existing(this);
+
     }
 
     public draw(): void {
-        this.add(this._player);
+        this.add(this._objectSprite);
     }
 
     public update(): void {
         if (this._isAlive) {
-            if (this.cursor.left.isDown) {
-                this.idle = false;
-                this._player.setVelocityX(-this.playerSpeed);
-
-                this._player.anims.play('left');
-            }
-            else if (this.cursor.right.isDown) {
-                this.idle = false;
-
-                this._player.setVelocityX(this.playerSpeed);
-
-                this._player.anims.play('right');
-            }
-            else {
-                this.idle = true;
-                this._player.setVelocityX(0);
+            this.idle = true;
+            if (this._cursors.up.isDown) {
+                this._objectSprite.setVelocityY(-this._speed);
+                if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'player_run_left')
+                    this._objectSprite.play('player_run_left');
+                this.idle = false
+            } else if (this._cursors.down.isDown) {
+                this._objectSprite.setVelocityY(this._speed);
+                if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'player_run_left')
+                    this._objectSprite.play('player_run_left');
+                this.idle = false
+            } else {
+                this._objectSprite.setVelocityY(0);
             }
 
-            if (this.cursor.up.isDown) {
-                this._player.setVelocityY(-this.playerSpeed);
-
-                this._player.anims.play('right');
+            if (this._cursors.left.isDown) {
+                this._objectSprite.setVelocityX(-this._speed);
+                if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'player_run_left')
+                    this._objectSprite.play('player_run_left');
+                this.idle = false
+            } else if (this._cursors.right.isDown) {
+                this._objectSprite.setVelocityX(this._speed);
+                if (!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'player_run_right')
+                    this._objectSprite.play('player_run_right');
+                this.idle = false
+            } else {
+                this._objectSprite.setVelocityX(0);
             }
-            else if (this.cursor.down.isDown) {
-                this._player.setVelocityY(this.playerSpeed);
 
-                this._player.anims.play('right');
-            }
-            else {
-                this._player.setVelocityY(0);
-
-                if (this.idle == true)
-                    this._player.anims.play('idle');
-            }
+            if ((!this._objectSprite.anims.currentAnim || this._objectSprite.anims.currentAnim.key !== 'player_idle') && this.idle)
+                this._objectSprite.play('player_idle');
 
             if (this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isUp)
                 if (this.actionPressed === true)
@@ -138,7 +108,7 @@ export default class Player extends Phaser.GameObjects.Container {
     }
 
     public objectAction(object): void {
-        if (this.cursor.space.isDown && !this.actionPressed && this.isAlive) {
+        if (this._cursors.space.isDown && !this.actionPressed && this.isAlive) {
             this.actionPressed = true;
             this._events.emit('interact', object)
         }
@@ -146,41 +116,84 @@ export default class Player extends Phaser.GameObjects.Container {
 
     public death(): void {
         if (this._isAlive) {
-            //console.log("t mor lol")
             this._isAlive = false;
-
-            if (this.player.body.velocity.x > 0) {
-                //console.log("x > 0");
-                this._player.setPosition(this.player.x - 22, this.player.y);
+            this._objectSprite.anims.play('player_die').once('animationcomplete', () => {
+                this._objectSprite.setActive(false)
+            })
+            if (this._objectSprite.body.velocity.x > 0) {
+                this._objectSprite.setPosition(this._objectSprite.x - 22, this._objectSprite.y);
             }
-            if (this.player.body.velocity.y > 0) {
-                //console.log("y > 0");
-                this._player.setPosition(this.player.x, this.player.y - 22);
+            if (this._objectSprite.body.velocity.y > 0) {
+                this._objectSprite.setPosition(this._objectSprite.x, this._objectSprite.y - 22);
             }
-            if (this.player.body.velocity.x < 0) {
-                //console.log("x < 0");
-                this._player.setPosition(this.player.x + 22, this.player.y);
+            if (this._objectSprite.body.velocity.x < 0) {
+                this._objectSprite.setPosition(this._objectSprite.x + 22, this._objectSprite.y);
             }
-            if (this.player.body.velocity.y < 0) {
-                //console.log("y < 0");
-                this._player.setPosition(this.player.x, this.player.y + 22);
+            if (this._objectSprite.body.velocity.y < 0) {
+                this._objectSprite.setPosition(this._objectSprite.x, this._objectSprite.y + 22);
             }
-            this._player.setVelocityX(0);
-            this._player.setVelocityY(0);
-            this._player.setActive(false)
+            this._objectSprite.setVelocityX(0);
+            this._objectSprite.setVelocityY(0);
         }
     }
 
     public revive(): void {
-            this._isAlive = true;
-            this._player.setActive(true)
-        //this._isAlive = true;
-        //this._player.setActive(true).setVisible(true);
+        this.scene.time.delayedCall(500, () => {
+            this._objectSprite.setActive(true)
+            this._objectSprite.anims.play('player_revive').once('animationcomplete', () => {
+                this._isAlive = true
+            })
+        })
     }
 
     public reviveTeleport(x, y): void {
-        this._player.setPosition(x, y);
-        this._isAlive = true;
-        this.player.setActive(true)
+        this._objectSprite.setPosition(x, y);
+        this.scene.time.delayedCall(500, () => {
+            this._objectSprite.setActive(true)
+            this._objectSprite.anims.play('player_revive').once('animationcomplete', () => {
+                this._isAlive = true
+            })
+        })
     }
+
+    public registerAnims(): void {
+
+        const idleAnimation: Phaser.Types.Animations.Animation = {
+            key: 'player_idle',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        }
+        const runLeftAnimation: Phaser.Types.Animations.Animation = {
+            key: 'player_run_left',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 5, end: 11 }),
+            frameRate: 15,
+            repeat: -1
+        }
+        const runRightAnimation: Phaser.Types.Animations.Animation = {
+            key: 'player_run_right',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 13, end: 19 }),
+            frameRate: 15,
+            repeat: -1
+        }
+        const dieAnimation: Phaser.Types.Animations.Animation = {
+            key: 'player_die',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 21, end: 26 }),
+            frameRate: 15,
+            repeat: 0
+        }
+        const reviveAnimation: Phaser.Types.Animations.Animation = {
+            key: 'player_revive',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 28, end: 33 }),
+            frameRate: 20,
+            repeat: 0
+        }
+
+        this.scene.anims.create(idleAnimation);
+        this.scene.anims.create(runLeftAnimation);
+        this.scene.anims.create(runRightAnimation);
+        this.scene.anims.create(dieAnimation);
+        this.scene.anims.create(reviveAnimation);
+    }
+
 }

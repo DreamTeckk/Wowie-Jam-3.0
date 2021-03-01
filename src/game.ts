@@ -20,7 +20,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
         },
     },
     parent: 'game',
-    backgroundColor: '#aaa',
+    backgroundColor: '#4587de',
     zoom: 1.1
 };
 

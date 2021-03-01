@@ -41,7 +41,7 @@ export default class Ghost extends Phaser.GameObjects.Container {
     public update(): void {
         if (this._cursors.up.isDown) {
             this._objectSprite.setVelocityY(-this._speed);
-            this._itemsInRange;
+            //this._itemsInRange;
         } else if (this._cursors.down.isDown) {
             this._objectSprite.setVelocityY(this._speed);
         } else {

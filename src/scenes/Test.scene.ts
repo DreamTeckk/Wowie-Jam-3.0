@@ -62,21 +62,23 @@ export default class TestScene extends Scene {
         this.idLevel = this.game.registry.get('idLevel')
 
         this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON(`level${this.idLevel}`, `assets/tilemaps/levelL-${this.idLevel}.json`);
-        console.log(`assets/tilemaps/levelL-${this.idLevel}.json`)
+        this.load.tilemapTiledJSON(`level${this.idLevel}`, `assets/tilemaps/level-${this.idLevel}.json`);
+        console.log(`assets/tilemaps/tileset.json`)
 
         /** Load SpriteSheets */
         this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('lever_ghost', 'assets/images/objects/ghost_lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('pressure_plate', 'assets/spritesheets/placeholder.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.load.spritesheet('pressure_plate', 'assets/images/objects/pressure_plate_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('start_stone', 'assets/images/objects/start.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('end_stone', 'assets/images/objects/end.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('firebase', 'assets/images/objects/firebase.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('fire', 'assets/images/objects/fire.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
         this.load.spritesheet('fireball', 'assets/images/objects/fireball.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('door_face', 'assets/images/objects/door_face_sprite.png', { frameWidth: 64, frameHeight: 64, endFrame: 0 })
-        this.load.spritesheet('door_side', 'assets/images/objects/door_side_sprite.png', { frameWidth: 32, frameHeight: 64, endFrame: 0 })
+        this.load.spritesheet('door_face', 'assets/images/objects/door_face_spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 8 })
+        this.load.spritesheet('door_side', 'assets/images/objects/door_side_spritesheet.png', { frameWidth: 32, frameHeight: 64, endFrame: 5 })
         this.load.spritesheet('ghost', 'assets/images/player/ghost_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
+        this.load.spritesheet('player', 'assets/images/player/player_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 33 })
+        this.load.spritesheet('teleporter', 'assets/images/objects/teleporter_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 6 })
 
 
         this.load.spritesheet('musicButton', 'assets/spritesheets/musicButton.png', { frameWidth: 64, frameHeight: 64, endFrame: 1 })
@@ -104,8 +106,8 @@ export default class TestScene extends Scene {
         map.createLayer('Ground', tiles);
         map.createLayer('Props', tiles);
         map.createLayer('Spikes', tiles);
-        map.createLayer('Launchers', tiles);
         this.walls = map.createLayer('Walls', tiles);
+        map.createLayer('Launchers', tiles);
         this.doorTiles = map.getObjectLayer('Doors') ? map.getObjectLayer('Doors').objects : [];
         this.leverTiles = map.getObjectLayer('Levers') ? map.getObjectLayer('Levers').objects : [];
         this.leverGhostTiles = map.getObjectLayer('GhostLevers') ? map.getObjectLayer('GhostLevers').objects : [];
@@ -129,6 +131,7 @@ export default class TestScene extends Scene {
         // Display teleporters
         this.tpTiles.forEach(tp => {
             const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, this);
+            l.create();
             this.teleporters.push(this.physics.add.staticGroup(l));
         });
 
@@ -184,7 +187,7 @@ export default class TestScene extends Scene {
 
         //this.cameras.main.setBounds(0, 0, 1024, 640);
 
-        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.startFollow(this.player.objectSprite);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
 
         // Display lauchers 
@@ -192,9 +195,9 @@ export default class TestScene extends Scene {
             const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.properties);
             l.create();
             this.physics.add.staticGroup(l)
-            this.physics.add.collider(l, this.player.player)
+            this.physics.add.collider(l, this.player.objectSprite)
             this.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
-            this.physics.add.overlap(this.player.player, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+            this.physics.add.overlap(this.player.objectSprite, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
             this.fireballLauchers.push(l);
         });
 
@@ -203,7 +206,7 @@ export default class TestScene extends Scene {
             const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this, ft.properties);
             f.create();
             this.physics.add.staticGroup(f)
-            this.physics.add.overlap(f, this.player.player, () => {
+            this.physics.add.overlap(f, this.player.objectSprite, () => {
                 if (f.isActivated)
                     this.death();
             })
@@ -220,22 +223,22 @@ export default class TestScene extends Scene {
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Create collisions between Player and Walls
-        this.physics.add.collider(this.player.player, this.walls);
+        this.physics.add.collider(this.player.objectSprite, this.walls);
         this.physics.add.collider(this.ghost.asset, this.walls);
 
 
         //Overlap spikes
         this.spikes.forEach(e => {
-            this.physics.add.overlap(this.player.player, e, () => this.death());
+            this.physics.add.overlap(this.player.objectSprite, e, () => this.death());
         });
 
         //Overlap end
-        this.physics.add.overlap(this.player.player, end, () => this.nextMap());
+        this.physics.add.overlap(this.player.objectSprite, end, () => this.nextMap());
 
         // Create collisions between Player and Doors
         this.doors.forEach(door => {
             this.physics.add.staticGroup(door);
-            this.doorColliders.push(this.physics.add.collider(this.player.player, door))
+            this.doorColliders.push(this.physics.add.collider(this.player.objectSprite, door))
         });
 
         this.physics.add.collider(this.ghost.asset, this.walls);
@@ -278,7 +281,7 @@ export default class TestScene extends Scene {
         })
 
         this.levers.forEach(e => {
-            this.physics.add.overlap(this.player.player, e, () => this.player.objectAction((e.children.entries[0] as Lever)));
+            this.physics.add.overlap(this.player.objectSprite, e, () => this.player.objectAction((e.children.entries[0] as Lever)));
             this.player.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
@@ -316,13 +319,14 @@ export default class TestScene extends Scene {
             this.ghost.events.on('interact', (object) => {
                 const tp = e.children.entries[0] as Teleporter;
                 if (object === tp) {
+                    tp.animate();
                     this.reviveTeleport();
                 }
             });
         })
 
         this.pressurePlates.forEach(e => {
-            this.physics.add.overlap(this.player.player, e, (player, e) => {
+            this.physics.add.overlap(this.player.objectSprite, e, (player, e) => {
                 const lever = e as Lever
                 if (!lever.isActivated) {
                     // Activate the lever
@@ -399,7 +403,7 @@ export default class TestScene extends Scene {
                     // After delay we close the door and reaply the collider.
                     this.time.delayedCall(linkedDoor.activationTime, () => {
                         linkedDoor.close();
-                        this.doorColliders.push(this.physics.add.collider(this.player.player, linkedDoor))
+                        this.doorColliders.push(this.physics.add.collider(this.player.objectSprite, linkedDoor))
                     });
                 }
             })
@@ -464,7 +468,7 @@ export default class TestScene extends Scene {
             this.invincible = true;
             this.time.delayedCall(3500, () => this.invincible = false, null, this);
             this.player.death();
-            this.ghost.death(this.player.player.x, this.player.player.y);
+            this.ghost.death(this.player.objectSprite.x, this.player.objectSprite.y);
             this.leversGhost.forEach(element => element.setVisible(true));
             this.time.delayedCall(3000, () => this.revive(), null, this);
             this.cameras.main.stopFollow();
@@ -474,11 +478,11 @@ export default class TestScene extends Scene {
     }
 
     public revive(): void {
-        if (!this.revived) {
+        if (!this.revived && !this.player.objectSprite.anims.isPlaying) {
             this.player.revive();
-            this.ghost.revive(this.player.player.x, this.player.player.y);
+            this.ghost.revive(this.player.objectSprite.x, this.player.objectSprite.y);
             this.cameras.main.stopFollow();
-            this.cameras.main.startFollow(this.player.player);
+            this.cameras.main.startFollow(this.player.objectSprite);
             this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
             this.leversGhost.forEach(element => element.setVisible(false));
             this.invincible = true;
@@ -492,7 +496,7 @@ export default class TestScene extends Scene {
         this.ghost.reviveTeleport();
         this.player.reviveTeleport(this.ghost.asset.x, this.ghost.asset.y);
         this.cameras.main.stopFollow();
-        this.cameras.main.startFollow(this.player.player);
+        this.cameras.main.startFollow(this.player.objectSprite);
         this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         this.invincible = true;
         this.time.delayedCall(500, () => this.invincible = false, null, this);

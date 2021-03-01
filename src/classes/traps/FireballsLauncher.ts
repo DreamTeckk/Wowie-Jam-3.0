@@ -95,8 +95,6 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         const tileSize = 32;
         const indicatorNum = this.activators.length;
         const offset = tileSize / (indicatorNum + 1);
-        console.log(offset);
-
         for (let i = 0; i < indicatorNum; i++) {
             switch (this._indicatorDirection) {
                 case Direction.NORTH:
@@ -124,12 +122,12 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         }
     }
 
-    public desactivateIndicator(all: boolean = false): void {
-        if(all){
+    public desactivateIndicator(all = false): void {
+        if (all) {
             this._indicators.filter(indic => indic.fillColor === 0x34ebde).map(i => i.setFillStyle(0x000000));
         } else {
             const lastOn = this._indicators.filter(indic => indic.fillColor === 0x34ebde).length;
-            if(lastOn)
+            if (lastOn)
                 this._indicators[lastOn - 1].setFillStyle(0x000000);
         }
     }

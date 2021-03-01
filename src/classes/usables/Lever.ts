@@ -13,7 +13,7 @@ export default class Lever extends Phaser.GameObjects.Container {
     private _activationTime: number;
     private _ghost: boolean;
     private _sounds: Phaser.Sound.BaseSound[] = [];
-    private _alreadyChanged = false;    
+    private _alreadyChanged = false;
 
     constructor(x: number, y: number, scene: Scene, ghost: boolean, properties: CustomProperties[]) {
         super(scene, x, y)
@@ -51,7 +51,7 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     get ghost(): boolean {
-        return this.ghost;
+        return this._ghost;
     }
 
     set ghost(value: boolean) {
@@ -64,7 +64,7 @@ export default class Lever extends Phaser.GameObjects.Container {
 
     get desactivators(): number[] {
         return this._desactivators;
-    } 
+    }
 
     public create(): void {
         if (isNaN(this._desactivators[0]))
@@ -103,12 +103,23 @@ export default class Lever extends Phaser.GameObjects.Container {
     }
 
     public changeState(): void {
-        if (!this._isActivated) {
-            this.playOpen();
-            this.objectSprite.play(`lever_${this._ghost ? 'ghost_' : ''}activate`);
+        if (this.ghost !== null) {
+
+            if (!this._isActivated) {
+                this.playOpen();
+                this.objectSprite.play(`lever_${this._ghost ? 'ghost_' : ''}activate`);
+            } else {
+                this.playClose();
+                this.objectSprite.playReverse(`lever_${this._ghost ? 'ghost_' : ''}activate`)
+            }
         } else {
-            this.playClose();
-            this.objectSprite.playReverse(`lever_${this._ghost ? 'ghost_' : ''}activate`)
+            if (!this._isActivated) {
+                this.playOpen();
+                this.objectSprite.play(`pressure_plate_activate`);
+            } else {
+                this.playClose();
+                this.objectSprite.playReverse(`pressure_plate_activate`)
+            }
         }
         this._isActivated = !this.isActivated;
     }
@@ -125,9 +136,15 @@ export default class Lever extends Phaser.GameObjects.Container {
             frames: this.scene.anims.generateFrameNumbers('lever_ghost', { start: 0, end: 1, first: 0 }),
             frameRate: 10,
             repeat: 0
-        }
-
+        };
+        const pressurePlateActivateAnim: Phaser.Types.Animations.Animation = {
+            key: 'pressure_plate_activate',
+            frames: this.scene.anims.generateFrameNumbers('pressure_plate', { start: 0, end: 1, first: 0 }),
+            frameRate: 10,
+            repeat: 0
+        };
         this.scene.anims.create(leverActivateAnim);
         this.scene.anims.create(leverGhostActivateAnim);
+        this.scene.anims.create(pressurePlateActivateAnim);
     }
 }
