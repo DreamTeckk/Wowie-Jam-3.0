@@ -87,6 +87,7 @@ export default class SceneFactory {
         this.scene.load.audio('leverOpen', 'assets/sounds/objects/leverOpen.wav');
         this.scene.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
         this.scene.load.audio('door', 'assets/sounds/objects/door.wav');
+        this.scene.load.audio('fire', 'assets/sounds/objects/fire.mp3');
         this.scene.load.audio('fireball', 'assets/sounds/objects/fireball.wav');
         this.scene.load.audio('fireballLauncher', 'assets/sounds/objects/fireballLauncher.wav');
         this.scene.load.audio('teleportation', 'assets/sounds/objects/teleportation.wav');

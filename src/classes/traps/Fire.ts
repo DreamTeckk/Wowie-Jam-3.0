@@ -10,6 +10,7 @@ export default class Fire extends Phaser.GameObjects.Container {
     private _indicatorDirection: string;
     private _indicators: Phaser.GameObjects.Rectangle[] = [];
     private _activators: number[] = [];
+    private sound: Phaser.Sound.BaseSound;
 
     constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
@@ -41,6 +42,7 @@ export default class Fire extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
+        this.sound = this.scene.sound.add('fire', { volume: 0.3, loop: true });
         if (isNaN(this._activators[0]))
             this._activators = [];
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'firebase', 0);
@@ -49,6 +51,7 @@ export default class Fire extends Phaser.GameObjects.Container {
         this.registerAnims();
         if (this._isActivated) {
             this.fire.anims.play('fire');
+            this.sound.play()
             this.add(this.fire)
         }
         this.scene.add.existing(this);
@@ -107,9 +110,11 @@ export default class Fire extends Phaser.GameObjects.Container {
         this._isActivated = !this._isActivated
         if (this._isActivated) {
             this.add(this.fire);
+            this.sound.play();
         }
         else {
             this.fire.anims.stop();
+            this.sound.stop()
             this.remove(this.fire);
         }
     }
