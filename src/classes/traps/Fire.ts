@@ -61,8 +61,7 @@ export default class Fire extends Phaser.GameObjects.Container {
     private createIndicators(): void {
         const tileSize = 32;
         const indicatorNum = this.activators.length;
-        const offset = tileSize / (indicatorNum + 1);
-        console.log(offset);
+        const offset = tileSize / (indicatorNum + 1)
 
         for (let i = 0; i < indicatorNum; i++) {
             switch (this._indicatorDirection) {

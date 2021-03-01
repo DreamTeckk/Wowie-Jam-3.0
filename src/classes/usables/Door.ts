@@ -57,6 +57,7 @@ export default class Door extends Phaser.GameObjects.Container {
         this.add(this._objectSprite)
         this.setInteractive();
         this.createIndicators();
+        this.registerAnims();
         this.scene.add.existing(this);
     }
 
@@ -104,11 +105,35 @@ export default class Door extends Phaser.GameObjects.Container {
 
     public open(): void {
         this._opened = true;
-        //this.sprite.setFillStyle(0x00ff00);
+        if (this.faceDoor)
+            this._objectSprite.anims.play('door_face_open')
+        else
+            this._objectSprite.anims.play('door_side_open')
     }
 
     public close(): void {
         this._opened = false;
-        //this.sprite.setFillStyle(0xdede21);
+        if (this.faceDoor)
+            this._objectSprite.anims.playReverse('door_face_open')
+        else
+            this._objectSprite.anims.playReverse('door_side_open')
+    }
+
+    public registerAnims(): void {
+        const doorSideOpenAnimation: Phaser.Types.Animations.Animation = {
+            key: 'door_side_open',
+            frames: this.scene.anims.generateFrameNumbers('door_side', { start: 0, end: 5, first: 0 }),
+            frameRate: 12,
+            repeat: 0
+        };
+        const doorFaceOpenAnimation: Phaser.Types.Animations.Animation = {
+            key: 'door_face_open',
+            frames: this.scene.anims.generateFrameNumbers('door_face', { start: 0, end: 8, first: 0 }),
+            frameRate: 12,
+            repeat: 0
+        };
+
+        this.scene.anims.create(doorSideOpenAnimation);
+        this.scene.anims.create(doorFaceOpenAnimation);
     }
 }

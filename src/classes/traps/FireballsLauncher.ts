@@ -88,8 +88,6 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
         const tileSize = 32;
         const indicatorNum = this.activators.length;
         const offset = tileSize / (indicatorNum + 1);
-        console.log(offset);
-
         for (let i = 0; i < indicatorNum; i++) {
             switch (this._indicatorDirection) {
                 case Direction.NORTH:

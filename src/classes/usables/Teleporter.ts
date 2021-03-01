@@ -16,8 +16,9 @@ export default class Teleporter extends Phaser.GameObjects.Container {
     }
 
     public create(): void {
-        this._teleporter = this.scene.physics.add.sprite(this._xPos, this._yPos, 'teleporter');
+        this._teleporter = this.scene.physics.add.sprite(0, 0, 'teleporter');
         this.add(this._teleporter)
+        this.registerAnimations();
         this.setSize(32, 32);
         this.setInteractive();
         this.scene.add.existing(this);
@@ -26,4 +27,22 @@ export default class Teleporter extends Phaser.GameObjects.Container {
     public update(): void {
         // 
     }
+
+    public animate(): void {
+        this._teleporter.anims.play('teleport').on('animationcomplete', () => {
+            this._teleporter.setFrame(0);
+        });
+    }
+
+    public registerAnimations(): void {
+        const teleport: Phaser.Types.Animations.Animation = {
+            key: 'teleport',
+            frames: this.scene.anims.generateFrameNumbers('teleporter', { start: 0, end: 6, first: 0 }),
+            frameRate: 15,
+            repeat: 1
+        };
+        this.scene.anims.create(teleport);
+    }
+
+
 }
