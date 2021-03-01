@@ -1,21 +1,17 @@
-const config: Phaser.Types.Scenes.SettingsConfig = {
-    key: 'test', // The key to provide to Phaser whene you want to change scene to this one
-    visible: false,
-    active: false // Defines if the Scene is active or not.
-}
-
-import { Scene } from 'phaser';
-import Lever from '../classes/usables/Lever';
+import Ghost from '../classes/Ghost';
 import Player from '../classes/Player';
-import Spike from '../classes/traps/Spike'
-import Ghost from '../classes/Ghost'
-import Door from '../classes/usables/Door';
-import FireballsLauncher from '../classes/traps/FireballsLauncher'
-import Teleporter from '../classes/usables/Teleporter';
 import Fire from '../classes/traps/Fire';
+import FireballsLauncher from '../classes/traps/FireballsLauncher';
+import Spike from '../classes/traps/Spike';
+import Door from '../classes/usables/Door';
 import End from '../classes/usables/End';
+import Lever from '../classes/usables/Lever';
+import Teleporter from '../classes/usables/Teleporter';
 
-export default class TestScene extends Scene {
+export default class SceneFactory {
+
+    private scene: Phaser.Scene;
+
 
     private idLevel: number
 
@@ -53,52 +49,55 @@ export default class TestScene extends Scene {
     /* Music */
     private music: Phaser.Sound.BaseSound;
 
-    constructor() {
-        super(config)
+
+    constructor(scene: Phaser.Scene) {
+        this.scene = scene;
     }
 
-    public preload(): void {
+    public prelaod(): void {
         //Load Tiles & TileMap
-        this.idLevel = this.game.registry.get('idLevel')
+        this.idLevel = this.scene.game.registry.get('idLevel')
 
-        this.load.image('tiles', 'assets/images/tileset/tileset.png');
-        this.load.tilemapTiledJSON(`level${this.idLevel}`, `assets/tilemaps/level-${this.idLevel}.json`);
-        console.log(`assets/tilemaps/tileset.json`)
+        this.scene.load.image('tiles', 'assets/images/tileset/tileset.png');
+        this.scene.load.tilemapTiledJSON(`level${this.idLevel}`, `assets/tilemaps/level-${this.idLevel}.json`);
 
         /** Load SpriteSheets */
-        this.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('lever_ghost', 'assets/images/objects/ghost_lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('pressure_plate', 'assets/images/objects/pressure_plate_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('start_stone', 'assets/images/objects/start.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('end_stone', 'assets/images/objects/end.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('firebase', 'assets/images/objects/firebase.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('fire', 'assets/images/objects/fire.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('fireball', 'assets/images/objects/fireball.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
-        this.load.spritesheet('door_face', 'assets/images/objects/door_face_spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 8 })
-        this.load.spritesheet('door_side', 'assets/images/objects/door_side_spritesheet.png', { frameWidth: 32, frameHeight: 64, endFrame: 5 })
-        this.load.spritesheet('ghost', 'assets/images/player/ghost_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
-        this.load.spritesheet('player', 'assets/images/player/player_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 33 })
-        this.load.spritesheet('teleporter', 'assets/images/objects/teleporter_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 6 })
+        this.scene.load.spritesheet('lever', 'assets/images/objects/lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('lever_ghost', 'assets/images/objects/ghost_lever_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('pressure_plate', 'assets/images/objects/pressure_plate_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('start_stone', 'assets/images/objects/start.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('end_stone', 'assets/images/objects/end.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('firebase', 'assets/images/objects/firebase.png', { frameWidth: 32, frameHeight: 32, endFrame: 1 })
+        this.scene.load.spritesheet('fire', 'assets/images/objects/fire_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
+        this.scene.load.spritesheet('fireball', 'assets/images/objects/fireball_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
+        this.scene.load.spritesheet('door_face', 'assets/images/objects/door_face_spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 8 })
+        this.scene.load.spritesheet('door_side', 'assets/images/objects/door_side_spritesheet.png', { frameWidth: 32, frameHeight: 64, endFrame: 5 })
+        this.scene.load.spritesheet('ghost', 'assets/images/player/ghost_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 7 })
+        this.scene.load.spritesheet('player', 'assets/images/player/player_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 33 })
+        this.scene.load.spritesheet('teleporter', 'assets/images/objects/teleporter_spritesheet.png', { frameWidth: 32, frameHeight: 32, endFrame: 6 })
 
 
-        this.load.spritesheet('musicButton', 'assets/spritesheets/musicButton.png', { frameWidth: 64, frameHeight: 64, endFrame: 1 })
+        this.scene.load.spritesheet('musicButton', 'assets/spritesheets/musicButton.png', { frameWidth: 64, frameHeight: 64, endFrame: 1 })
 
-        this.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
-        // Load Activator sprite
-        this.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
+        this.scene.load.spritesheet('player', 'assets/spritesheets/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
+        // scene.Load Activator sprite
+        this.scene.load.spritesheet('activator', 'assets/spritesheets/activator.png', { frameWidth: 32, frameHeight: 32 });
 
-        // Load Sounds
-        this.load.audio('themeGame', 'assets/sounds/gameTheme.mp3');
-        this.load.audio('leverOpen', 'assets/sounds/objects/leverOpen.wav');
-        this.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
-        this.load.audio('door', 'assets/sounds/objects/door.wav');
-        this.load.audio('fireball', 'assets/sounds/objects/fireball.wav');
+        // scene.Load Sounds
+        this.scene.load.audio('leverOpen', 'assets/sounds/objects/leverOpen.wav');
+        this.scene.load.audio('leverClose', 'assets/sounds/objects/leverClose.wav');
+        this.scene.load.audio('door', 'assets/sounds/objects/door.wav');
+        this.scene.load.audio('fireball', 'assets/sounds/objects/fireball.wav');
+        this.scene.load.audio('fireballLauncher', 'assets/sounds/objects/fireballLauncher.wav');
+        this.scene.load.audio('teleportation', 'assets/sounds/objects/teleportation.wav');
+        this.scene.load.audio('door', 'assets/sounds/objects/door.wav');
+        this.scene.load.audio('death', 'assets/sounds/death.wav');
+        this.scene.load.audio('revive', 'assets/sounds/revive.mp3');
     }
 
     public create(): void {
-
         // Create the TileMap
-        const map = this.make.tilemap({ key: `level${this.idLevel}` })
+        const map = this.scene.make.tilemap({ key: `level${this.idLevel}` })
         const tiles = map.addTilesetImage('TileSet', 'tiles');
 
         // Display Map Layers 
@@ -119,94 +118,94 @@ export default class TestScene extends Scene {
         this.fireballLaucherTiles = map.getObjectLayer('LaunchersObject') ? map.getObjectLayer('LaunchersObject').objects : [];
         this.fireTiles = map.getObjectLayer('Fires') ? map.getObjectLayer('Fires').objects : [];
 
-        this.add.existing(this.add.sprite(this.startTile.x, this.startTile.y, 'start_stone', 0));
-        //this.add.existing(this.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
-        //this.add.existing()
+        this.scene.add.existing(this.scene.add.sprite(this.startTile.x, this.startTile.y, 'start_stone', 0));
+        //this.scene.add.existing(this.scene.add.rectangle(this.endTile.x, this.endTile.y, 32, 32, 0x750761));
+        //this.scene.add.existing()
 
         //Display the end
-        const end = new End(this.endTile.x + this.endTile.width / 2, this.endTile.y - this.endTile.height / 2, this);
+        const end = new End(this.endTile.x + this.endTile.width / 2, this.endTile.y - this.endTile.height / 2, this.scene);
         end.create();
-        this.physics.add.staticGroup(end);
+        this.scene.physics.add.staticGroup(end);
 
         // Display teleporters
         this.tpTiles.forEach(tp => {
-            const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, this);
+            const l = new Teleporter(tp.x + tp.width / 2, tp.y - tp.height / 2, this.scene);
             l.create();
-            this.teleporters.push(this.physics.add.staticGroup(l));
+            this.teleporters.push(this.scene.physics.add.staticGroup(l));
         });
 
         // Display levers
         this.leverTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, false, lever.properties);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this.scene, false, lever.properties);
             l.create();
-            this.levers.push(this.physics.add.staticGroup(l));
+            this.levers.push(this.scene.physics.add.staticGroup(l));
             this.leverList.push(l);
         });
 
         // Display ghost
         this.leverGhostTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, true, lever.properties);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this.scene, true, lever.properties);
             l.create();
-            this.leversGhost.push(this.physics.add.staticGroup(l).setVisible(false));
+            this.leversGhost.push(this.scene.physics.add.staticGroup(l).setVisible(false));
         });
 
         // Display doors 
         this.doorTiles.forEach(door => {
-            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, this, door.properties, door.width === 64);
+            const d = new Door(door.x + door.width / 2, door.y - door.height / 2, this.scene, door.properties, door.width === 64);
             d.create();
             this.doors.push(d);
         });
 
         // Dispaly spikes
         this.spikeTiles.forEach(spike => {
-            const d = new Spike(spike.x + spike.width / 2, spike.y + spike.height / 2, spike.width, spike.height, parseInt(spike.name), this);
+            const d = new Spike(spike.x + spike.width / 2, spike.y + spike.height / 2, spike.width, spike.height, parseInt(spike.name), this.scene);
             d.create();
-            this.spikes.push(this.physics.add.staticGroup(d));
+            this.spikes.push(this.scene.physics.add.staticGroup(d));
         });
 
 
         //Display pressure plate 
         this.pressurePlateTiles.forEach(lever => {
-            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this, null, lever.properties);
+            const l = new Lever(lever.x + lever.width / 2, lever.y - lever.height / 2, this.scene, null, lever.properties);
             l.create();
-            this.pressurePlates.push(this.physics.add.staticGroup(l));
+            this.pressurePlates.push(this.scene.physics.add.staticGroup(l));
         });
 
         //Display tp 
 
         //const l2 = new Teleporter(800, 500, this);
-        //this.teleporters.push(this.physics.add.staticGroup(l2));
+        //this.teleporters.push(this.scene.physics.add.staticGroup(l2));
         //map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Register the Player
-        this.player = new Player(this.startTile.x, this.startTile.y, this);
+        this.player = new Player(this.startTile.x, this.startTile.y, this.scene);
         this.player.create();
 
-        this.cameras.main.setZoom(1.2, 1.2);
-        //this.cameras.main.setPosition(-this.player.x, -this.player.y);
+        this.scene.cameras.main.setZoom(1.2, 1.2);
+        //this.scene.cameras.main.setPosition(-this.player.x, -this.player.y);
 
-        //this.cameras.main.setBounds(0, 0, 1024, 640);
+        //this.scene.cameras.main.setBounds(0, 0, 1024, 640);
 
-        this.cameras.main.startFollow(this.player.objectSprite);
-        this.cameras.main.followOffset.set(-this.player.x, -this.player.y);
+        this.scene.cameras.main.startFollow(this.player.objectSprite);
+        this.scene.cameras.main.followOffset.set(-this.player.x, -this.player.y);
 
         // Display lauchers 
         this.fireballLaucherTiles.forEach(fl => {
-            const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this, fl.properties);
+            const l = new FireballsLauncher(fl.x + fl.width / 2, fl.y - fl.height / 2, this.scene, fl.properties);
             l.create();
-            this.physics.add.staticGroup(l)
-            this.physics.add.collider(l, this.player.objectSprite)
-            this.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
-            this.physics.add.overlap(this.player.objectSprite, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
+            this.scene.physics.add.staticGroup(l)
+            this.scene.physics.add.collider(l, this.player.objectSprite)
+            this.scene.physics.add.collider(l.fireballs, this.walls, (fireball) => fireball.destroy())
+            this.scene.physics.add.overlap(this.player.objectSprite, l.fireballs, (player, fireball) => { this.death(); fireball.destroy() })
             this.fireballLauchers.push(l);
         });
 
         // Display fires 
         this.fireTiles.forEach(ft => {
-            const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this, ft.properties);
+            const f = new Fire(ft.x + ft.width / 2, ft.y - ft.height / 2, this.scene, ft.properties);
             f.create();
-            this.physics.add.staticGroup(f)
-            this.physics.add.overlap(f, this.player.objectSprite, () => {
+            this.scene.physics.add.staticGroup(f)
+            this.scene.physics.add.overlap(f, this.player.objectSprite, () => {
                 if (f.isActivated)
                     this.death();
             })
@@ -216,37 +215,37 @@ export default class TestScene extends Scene {
         this.player.draw();
 
         // Register the Ghost
-        this.ghost = new Ghost(this.player.x, this.player.y, this);
+        this.ghost = new Ghost(this.player.x, this.player.y, this.scene);
         this.ghost.create();
 
         // Set wall layer as collinding layer
         map.setCollisionBetween(1, 999, true, true, this.walls);
 
         // Create collisions between Player and Walls
-        this.physics.add.collider(this.player.objectSprite, this.walls);
-        this.physics.add.collider(this.ghost.asset, this.walls);
+        this.scene.physics.add.collider(this.player.objectSprite, this.walls);
+        this.scene.physics.add.collider(this.ghost.asset, this.walls);
 
 
         //Overlap spikes
         this.spikes.forEach(e => {
-            this.physics.add.overlap(this.player.objectSprite, e, () => this.death());
+            this.scene.physics.add.overlap(this.player.objectSprite, e, () => this.death());
         });
 
         //Overlap end
-        this.physics.add.overlap(this.player.objectSprite, end, () => this.nextMap());
+        this.scene.physics.add.overlap(this.player.objectSprite, end, () => this.nextMap());
 
         // Create collisions between Player and Doors
         this.doors.forEach(door => {
-            this.physics.add.staticGroup(door);
-            this.doorColliders.push(this.physics.add.collider(this.player.objectSprite, door))
+            this.scene.physics.add.staticGroup(door);
+            this.doorColliders.push(this.scene.physics.add.collider(this.player.objectSprite, door))
         });
 
-        this.physics.add.collider(this.ghost.asset, this.walls);
+        this.scene.physics.add.collider(this.ghost.asset, this.walls);
 
         // Bind lever action to open linked door
         this.leversGhost.forEach(e => {
             // Check if player is on a lever action's zone 
-            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Lever)));
+            this.scene.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Lever)));
             // Register the event emited whene the ghost interact with a lever
             this.ghost.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
@@ -255,18 +254,18 @@ export default class TestScene extends Scene {
                         //Activate lever
                         lever.changeState();
                         lever.desactivators.forEach(des => {
-                            this.leverList.forEach(lev => {
-                                if (lev.id == des && lev.isActivated) {
+                            this.leverList.filter(lev => lev.id == des && lev.isActivated)
+                                .forEach(lev => {
                                     lev.changeState();
                                     lever.changeState();
-                                }
-                            });
+                                    this.desactivateIndicators(lev);
+                                })
                         });
                         //Play lever music
                         lever.playOpen()
                         // Deactivate the lever after x milliseconds
                         if (lever.activationTime != 0)
-                            this.time.delayedCall(lever.activationTime, () => {
+                            this.scene.time.delayedCall(lever.activationTime, () => {
                                 this.desactivateIndicators(lever);
                                 lever.changeState()
                             });
@@ -281,7 +280,9 @@ export default class TestScene extends Scene {
         })
 
         this.levers.forEach(e => {
-            this.physics.add.overlap(this.player.objectSprite, e, () => this.player.objectAction((e.children.entries[0] as Lever)));
+            this.scene.physics.add.overlap(this.player.objectSprite, e, () => {
+                this.player.objectAction(e.children.entries[0] as Lever)
+            });
             this.player.events.on('interact', (object) => {
                 const lever = e.children.entries[0] as Lever;
                 if (object === lever) {
@@ -289,16 +290,16 @@ export default class TestScene extends Scene {
                         // Activate the lever
                         lever.changeState();
                         lever.desactivators.forEach(des => {
-                            this.leverList.forEach(lev => {
-                                if (lev.id == des && lev.isActivated) {
+                            this.leverList.filter(lev => lev.id == des && lev.isActivated)
+                                .forEach(lev => {
                                     lev.changeState();
                                     lever.changeState();
-                                }
-                            });
+                                    this.desactivateIndicators(lev);
+                                })
                         });
                         // Deactivate the lever after x milliseconds
                         if (lever.activationTime != 0)
-                            this.time.delayedCall(lever.activationTime, () => {
+                            this.scene.time.delayedCall(lever.activationTime, () => {
                                 this.desactivateIndicators(lever);
                                 lever.changeState()
                             });
@@ -314,7 +315,7 @@ export default class TestScene extends Scene {
 
         this.teleporters.forEach(e => {
             // Check if player is on a teleporter action's zone 
-            this.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Teleporter)));
+            this.scene.physics.add.overlap(this.ghost.asset, e, () => this.ghost.objectAction((e.children.entries[0] as Teleporter)));
             // Register the event emited whene the ghost interact with a teleporter
             this.ghost.events.on('interact', (object) => {
                 const tp = e.children.entries[0] as Teleporter;
@@ -326,14 +327,14 @@ export default class TestScene extends Scene {
         })
 
         this.pressurePlates.forEach(e => {
-            this.physics.add.overlap(this.player.objectSprite, e, (player, e) => {
+            this.scene.physics.add.overlap(this.player.objectSprite, e, (player, e) => {
                 const lever = e as Lever
                 if (!lever.isActivated) {
                     // Activate the lever
                     lever.changeState();
                     // Deactivate the lever after x milliseconds
                     if (lever.activationTime != 0)
-                        this.time.delayedCall(lever.activationTime, () => {
+                        this.scene.time.delayedCall(lever.activationTime, () => {
                             this.desactivateIndicators(lever);
                             lever.changeState()
                         });
@@ -347,11 +348,10 @@ export default class TestScene extends Scene {
         })
 
         //SOUND AFFECTATION
-        this.music = this.sound.add('themeGame', { loop: true, volume: 0.1 });
-        this.music.play();
+        this.music = (this.scene.registry.get('themeMusic') as Phaser.Sound.BaseSound);
 
         //Create the music button
-        this.musicButton = this.add.sprite(1090, 75, 'musicButton').setOrigin(1, 0).setInteractive().setScrollFactor(0)
+        this.musicButton = this.scene.add.sprite(1090, 75, 'musicButton').setOrigin(1, 0).setInteractive().setScrollFactor(0)
         this.musicButton.on('pointerdown', () => {
             if (this.music.isPaused) {
                 this.music.play();
@@ -362,16 +362,10 @@ export default class TestScene extends Scene {
             }
         }, this);
 
-        this.add.existing(this.musicButton);
-
+        this.scene.add.existing(this.musicButton);
     }
-    /**
-     * @param {number} time The current time. Either a High Resolution Timer value if it comes 
-     * from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta The delta time in ms since the last frame. 
-     * This is a smoothed and capped value based on the FPS rate.
-     */
-    public update(time: number, delta: number): void {
+
+    public update(): void {
         this.player.update();
         this.ghost.update();
     }
@@ -396,14 +390,14 @@ export default class TestScene extends Scene {
                     // Remove the door collider
                     this.doorColliders = this.doorColliders.filter(dc => {
                         if ((dc.object2 as Door).activators === linkedDoor.activators) {
-                            this.physics.world.removeCollider(dc)
+                            this.scene.physics.world.removeCollider(dc)
                         }
                         return dc;
                     })
                     // After delay we close the door and reaply the collider.
-                    this.time.delayedCall(linkedDoor.activationTime, () => {
+                    this.scene.time.delayedCall(linkedDoor.activationTime, () => {
                         linkedDoor.close();
-                        this.doorColliders.push(this.physics.add.collider(this.player.objectSprite, linkedDoor))
+                        this.doorColliders.push(this.scene.physics.add.collider(this.player.objectSprite, linkedDoor))
                     });
                 }
             })
@@ -426,7 +420,7 @@ export default class TestScene extends Scene {
                     linkedFl.changeState();
 
                     // After delay we switch back the launchers
-                    this.time.delayedCall(linkedFl.activationTime, () => {
+                    this.scene.time.delayedCall(linkedFl.activationTime, () => {
                         linkedFl.changeState();
                     });
                 }
@@ -450,7 +444,7 @@ export default class TestScene extends Scene {
                     linkedFires.changeState();
 
                     // After delay we switch back the launchers
-                    this.time.delayedCall(linkedFires.activationTime, () => {
+                    this.scene.time.delayedCall(linkedFires.activationTime, () => {
                         linkedFires.changeState();
                     });
                 }
@@ -466,14 +460,14 @@ export default class TestScene extends Scene {
     public death(): void {
         if (!this.invincible) {
             this.invincible = true;
-            this.time.delayedCall(3500, () => this.invincible = false, null, this);
+            this.scene.time.delayedCall(3500, () => this.invincible = false, null, this);
             this.player.death();
             this.ghost.death(this.player.objectSprite.x, this.player.objectSprite.y);
             this.leversGhost.forEach(element => element.setVisible(true));
-            this.time.delayedCall(3000, () => this.revive(), null, this);
-            this.cameras.main.stopFollow();
-            this.cameras.main.startFollow(this.ghost.asset);
-            this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+            this.scene.time.delayedCall(3000, () => this.revive(), null, this);
+            this.scene.cameras.main.stopFollow();
+            this.scene.cameras.main.startFollow(this.ghost.asset);
+            this.scene.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         }
     }
 
@@ -481,12 +475,12 @@ export default class TestScene extends Scene {
         if (!this.revived && !this.player.objectSprite.anims.isPlaying) {
             this.player.revive();
             this.ghost.revive(this.player.objectSprite.x, this.player.objectSprite.y);
-            this.cameras.main.stopFollow();
-            this.cameras.main.startFollow(this.player.objectSprite);
-            this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+            this.scene.cameras.main.stopFollow();
+            this.scene.cameras.main.startFollow(this.player.objectSprite);
+            this.scene.cameras.main.followOffset.set(-this.player.x, -this.player.y)
             this.leversGhost.forEach(element => element.setVisible(false));
             this.invincible = true;
-            this.time.delayedCall(500, () => this.invincible = false, null, this);
+            this.scene.time.delayedCall(500, () => this.invincible = false, null, this);
         } else {
             this.revived = false;
         }
@@ -495,18 +489,18 @@ export default class TestScene extends Scene {
     public reviveTeleport(): void {
         this.ghost.reviveTeleport();
         this.player.reviveTeleport(this.ghost.asset.x, this.ghost.asset.y);
-        this.cameras.main.stopFollow();
-        this.cameras.main.startFollow(this.player.objectSprite);
-        this.cameras.main.followOffset.set(-this.player.x, -this.player.y)
+        this.scene.cameras.main.stopFollow();
+        this.scene.cameras.main.startFollow(this.player.objectSprite);
+        this.scene.cameras.main.followOffset.set(-this.player.x, -this.player.y)
         this.invincible = true;
-        this.time.delayedCall(500, () => this.invincible = false, null, this);
+        this.scene.time.delayedCall(500, () => this.invincible = false, null, this);
     }
 
     public nextMap(): void {
-        this.game.registry.inc('idLevel', 1)
-        this.music.stop();
-        console.log('go scene 2');
+        this.scene.game.registry.inc('idLevel', 1)
+        console.log(`level-${this.scene.registry.get('idLevel')}`);
 
-        this.scene.start('test2');
+        this.scene.scene.start(`level-${this.scene.registry.get('idLevel')}`);
+        //this.scene.scene.start(`level-2`);
     }
 }

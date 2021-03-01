@@ -16,6 +16,7 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
     private _indicatorDirection: string;
     private _indicators: Phaser.GameObjects.Rectangle[] = [];
     private _fireRate: number;
+    private sound: Phaser.Sound.BaseSound
 
     constructor(x: number, y: number, scene: Scene, properties: CustomProperties[]) {
         super(scene, x, y) // Registering the GameObject of the Player in the provided Scene with it's 2D position.
@@ -63,17 +64,22 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
             this._activators = [];
         this.setSize(32, 32);
         this.createIndicators();
+        this.registerAnims();
+        this.sound = this.scene.sound.add('fireballLauncher', { volume: 0.3 });
         this.scene.add.existing(this);
         this.scene.time.addEvent({
             delay: this._fireRate,
             callback: () => {
                 if (this._isActivated) {
-                    const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball')
+                    this.sound.play();
+                    const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball');
+                    fireball.anims.play('fireball');
+
                     if (this._direction === Direction.SOUTH) {
                         fireball.setVelocityY(300);
                     }
                     if (this._direction === Direction.NORTH) {
-                        fireball.setRotation(180)
+                        fireball.setRotation(-180)
                         fireball.setVelocityY(-300);
                     }
                     if (this._direction === Direction.WEST) {
@@ -138,6 +144,16 @@ export default class FireballsLauncher extends Phaser.GameObjects.Container {
 
     public changeState(): void {
         this._isActivated = !this._isActivated
+    }
+
+    public registerAnims(): void {
+        const fireAnimation: Phaser.Types.Animations.Animation = {
+            key: 'fireball',
+            frames: this.scene.anims.generateFrameNumbers('fireball', { start: 0, end: 7, first: 0 }),
+            frameRate: 12,
+            repeat: 0
+        };
+        this.scene.anims.create(fireAnimation);
     }
 
 }

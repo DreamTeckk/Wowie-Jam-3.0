@@ -16,6 +16,8 @@ export default class Player extends Phaser.GameObjects.Container {
     private _objectSprite: Phaser.Physics.Arcade.Sprite;
     private actionPressed: boolean
     private _events: Phaser.Events.EventEmitter = new Phaser.Events.EventEmitter();
+    private deathSound: Phaser.Sound.BaseSound;
+    private reviveSound: Phaser.Sound.BaseSound;
 
     private _speed: number;
     private idle;
@@ -59,6 +61,8 @@ export default class Player extends Phaser.GameObjects.Container {
         this._objectSprite.setMaxVelocity(this._speed);
         this._cursors = this.scene.input.keyboard.createCursorKeys();
         this.registerAnims();
+        this.deathSound = this.scene.sound.add('death', { volume: 0.1 });
+        this.reviveSound = this.scene.sound.add('revive', { volume: 0.2 });
         this.scene.add.existing(this);
 
     }
@@ -117,6 +121,7 @@ export default class Player extends Phaser.GameObjects.Container {
     public death(): void {
         if (this._isAlive) {
             this._isAlive = false;
+            this.deathSound.play();
             this._objectSprite.anims.play('player_die').once('animationcomplete', () => {
                 this._objectSprite.setActive(false)
             })
@@ -139,6 +144,7 @@ export default class Player extends Phaser.GameObjects.Container {
 
     public revive(): void {
         this.scene.time.delayedCall(500, () => {
+            this.reviveSound.play();
             this._objectSprite.setActive(true)
             this._objectSprite.anims.play('player_revive').once('animationcomplete', () => {
                 this._isAlive = true

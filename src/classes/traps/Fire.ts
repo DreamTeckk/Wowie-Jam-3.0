@@ -46,8 +46,11 @@ export default class Fire extends Phaser.GameObjects.Container {
         this._objectSprite = this.scene.physics.add.sprite(0, 0, 'firebase', 0);
         this.fire = this.scene.physics.add.sprite(0, 0, 'fire', 0);
         this.add(this._objectSprite);
-        if (this._isActivated)
+        this.registerAnims();
+        if (this._isActivated) {
+            this.fire.anims.play('fire');
             this.add(this.fire)
+        }
         this.scene.add.existing(this);
         this.setSize(32, 32);
         this.createIndicators();
@@ -69,7 +72,7 @@ export default class Fire extends Phaser.GameObjects.Container {
                     this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, -tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
                     break;
                 case Direction.EAST:
-                    this._indicators.push(this.scene.add.rectangle(tileSize + 16, offset * (i + 1) -tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
+                    this._indicators.push(this.scene.add.rectangle(tileSize + 16, offset * (i + 1) - tileSize / 2, 4, 4, 0x000000).setOrigin(0.5, 0.5));
                     break;
                 case Direction.SOUTH:
                     this._indicators.push(this.scene.add.rectangle(offset * (i + 1) - tileSize / 2, tileSize + 16, 4, 4, 0x000000).setOrigin(0.5, 0.5));
@@ -90,12 +93,12 @@ export default class Fire extends Phaser.GameObjects.Container {
         }
     }
 
-    public desactivateIndicator(all: boolean = false): void {
-        if(all){
+    public desactivateIndicator(all = false): void {
+        if (all) {
             this._indicators.filter(indic => indic.fillColor === 0x34ebde).map(i => i.setFillStyle(0x000000));
         } else {
             const lastOn = this._indicators.filter(indic => indic.fillColor === 0x34ebde).length;
-            if(lastOn)
+            if (lastOn)
                 this._indicators[lastOn - 1].setFillStyle(0x000000);
         }
     }
@@ -106,8 +109,19 @@ export default class Fire extends Phaser.GameObjects.Container {
             this.add(this.fire);
         }
         else {
+            this.fire.anims.stop();
             this.remove(this.fire);
         }
+    }
+
+    public registerAnims(): void {
+        const fireAnimation: Phaser.Types.Animations.Animation = {
+            key: 'fire',
+            frames: this.scene.anims.generateFrameNumbers('fire', { start: 0, end: 7, first: 0 }),
+            frameRate: 12,
+            repeat: 0
+        };
+        this.scene.anims.create(fireAnimation);
     }
 
 }

@@ -7,6 +7,7 @@ export default class Teleporter extends Phaser.GameObjects.Container {
     private _yPos: number;
     private _isActivated: boolean;
     private _teleporter: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private sound: Phaser.Sound.BaseSound;
 
     constructor(x: number, y: number, scene: Scene) {
         super(scene, x, y)
@@ -21,6 +22,7 @@ export default class Teleporter extends Phaser.GameObjects.Container {
         this.registerAnimations();
         this.setSize(32, 32);
         this.setInteractive();
+        this.sound = this.scene.sound.add('teleporter', { volume: 0.3 });
         this.scene.add.existing(this);
     }
 
@@ -29,6 +31,7 @@ export default class Teleporter extends Phaser.GameObjects.Container {
     }
 
     public animate(): void {
+        this.sound.play()
         this._teleporter.anims.play('teleport').on('animationcomplete', () => {
             this._teleporter.setFrame(0);
         });
